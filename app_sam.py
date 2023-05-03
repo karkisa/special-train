@@ -76,6 +76,7 @@ class StreamlitApp(L.app.components.ServeStreamlit):
         if uploaded_file is not None:
           image = st.image(uploaded_file,use_column_width=True)
           image = self.read_img(uploaded_file)
+          st.text(image.shape)
           masks = self.inference(image)
           st.text(len(masks))
           st.image(masks[0].astype(float))
