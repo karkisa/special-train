@@ -2,20 +2,9 @@
 # !pip install streamlit omegaconf scipy
 # !pip install torch
 import lightning as L
-import torch
-from io import BytesIO
-from functools import partial
-from scipy.io.wavfile import write
 import streamlit as st
-import warnings
+import cv2, torch, warnings,os
 warnings.filterwarnings('ignore')
-import os,torchvision
-import numpy as np
-from PIL import Image
-import collections
-import torchvision.transforms as transforms
-from segmentation_models_pytorch import Unet
-import cv2, torch
 
 class StreamlitApp(L.app.components.ServeStreamlit):
     def build_model(self):
@@ -32,7 +21,8 @@ class StreamlitApp(L.app.components.ServeStreamlit):
         vid_ca = cv2.VideoCapture(vid_path)
         extention = self.get_name_extention(vid_path)
         save_folder =parent_folder + '/' + extention
-        os.mkdir(save_folder)
+        if not os.path.exists(save_folder):
+            os.mkdir(save_folder)
         count = 0
         time_skips = 3000             # fps is 29.9 .i.e almost 30
         while vid_ca.isOpened():
@@ -41,15 +31,15 @@ class StreamlitApp(L.app.components.ServeStreamlit):
             vid_ca.set(cv2.CAP_PROP_POS_MSEC, t_msec)
             ret, frame = vid_ca.read()
             name = str(count)+'_'+ extention +'.png'
+            # st.progress(count)
+
             if ret :
                 yolo_results = self.model(frame,size = 640)
                 if len(yolo_results.xyxy[0]):
                     x_min,y_min,x_max,y_max,confi,cla = yolo_results.xyxy[0][0].numpy()
                     if confi>0.8:
                         cv2.imwrite(save_folder+'/'+name,frame)
-                if count%60==0:
-                    print(count)
-
+                
             else : break
     
     def render(self):
