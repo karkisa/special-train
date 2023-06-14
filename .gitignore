@@ -3,3 +3,4 @@ sam_vit_h_4b8939.pth
 best.pt
 exp.ipynb
 testing_dat_w_measurements.csv
+__pycache__/
