@@ -43,10 +43,10 @@ class StreamlitApp(L.app.components.ServeStreamlit):
             else : break
     
     def render(self):
-        st.title("Convert the vids to images")
-        st.subheader("Get the video folder path")
-        vid_folder_path = st.text_input('Enter folder path', '/Users/sagar/Desktop/AI_cap/sturdy-eureka/data/animated-engine/vid/220901')
-        st.subheader("Get the video folder path")
+        st.title("Extract Frames and Save important frames")
+        st.subheader("Enter location of the folder that contains videos")
+        vid_folder_path = st.text_input('Enter folder path', '/Users/sagannr/Desktop/AI_cap/sturdy-eureka/data/animated-engine/vid/220901')
+        st.subheader("Enter location of folder where you want to save frames with whales")
         save_folder_path = st.text_input('Enter folder path', '/Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/save_detections')
         list_p = os.listdir(vid_folder_path)
         list_p = [os.path.join(vid_folder_path,p) for p in list_p]
