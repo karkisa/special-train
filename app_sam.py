@@ -38,6 +38,7 @@ class StreamlitApp(L.app.components.ServeStreamlit):
         # detection model
         yolo_model = torch.hub.load('ultralytics/yolov5', 'custom', path='best.pt')
 
+        keypoint_yolo = torch.hub.load('ultralytics/yolov5', 'custom', path='keypoint_best.pt')
 
         DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         MODEL_TYPE = "vit_h"
@@ -48,24 +49,33 @@ class StreamlitApp(L.app.components.ServeStreamlit):
 
         # mask_generator = SamAutomaticMaskGenerator(sam)
         mask_generator = SamPredictor(sam)
-        return mask_generator , yolo_model
+        return mask_generator , yolo_model , keypoint_yolo
     
     def read_img(self,uploaded_file):
       image = Image.open(uploaded_file).convert('RGB')
       image = np.array(image)
       return image
-    
-    def detection_op(self,yolo_results,image):
+    def get_centers(self,df):
+        centers, classes = [],[]
+        for idx , row in df.iterrows():
+            centers.append((int((row['xmax'] + row['xmin'])/2), int((row['ymax'] + row['ymin'])/2)))
+            classes.append(row['class'])
+
+        return centers,classes
+
+    def detection_op(self,yolo_results, yolo_keypoints_results,image):
 
         st.write(yolo_results.pandas().xyxy[0])
-
+        st.write(yolo_keypoints_results.pandas().xyxy[0])
+        centers,classes = self.get_centers(yolo_keypoints_results.pandas().xyxy[0])
         x_min,y_min,x_max,y_max,confi,cla = yolo_results.xyxy[0][0].numpy()
         
         color = (255, 0, 0)
         # Line thickness of 2 px
         thickness = 2
         img_copy = np.copy(image)
-        
+        for point in centers:
+            cv2.circle(img_copy, tuple(point), 1, (255,0,0),10)
         # shift_amout_front = st.slider('front line shifter percent wrt whole length')
         # shift_amout_back = st.slider('back line shifter percent wrt whole length')
         # x_min,x_max = x_min + shift_amout_front*(x_max-x_min)*0.01 , x_max - shift_amout_back*(x_max-x_min)*0.01
@@ -74,8 +84,8 @@ class StreamlitApp(L.app.components.ServeStreamlit):
         # shift_amout_down = st.slider('down line shifter percent wrt whole length')
         # y_min,y_max = y_min + shift_amout_front*(y_max-y_min)*0.01 , y_max - shift_amout_back*(y_max-y_min)*0.01
         # if st.button("render"):
-        b_img = cv2.rectangle(img_copy,[int(x_min),int(y_min)],[int(x_max),int(y_max)],color, thickness)
-        st.image(b_img) 
+        cv2.rectangle(img_copy,[int(x_min),int(y_min)],[int(x_max),int(y_max)],color, thickness)
+        st.image(img_copy) 
 
         return x_min,y_min,x_max,y_max
     
@@ -88,9 +98,11 @@ class StreamlitApp(L.app.components.ServeStreamlit):
           image = st.image(uploaded_file,use_column_width=True)
           image = self.read_img(uploaded_file)
           st.text(f"Image shape is : {image.shape}")
-          mask_predictor , yolo_model = self.model
+          mask_predictor , yolo_model , keypoint_yolo = self.model
           yolo_results  =yolo_model(image,size = 640)
-          x_min,y_min,x_max,y_max = self.detection_op(yolo_results,image)
+          yolo_keypoints_results = keypoint_yolo(image, size= 640)
+
+          x_min,y_min,x_max,y_max = self.detection_op(yolo_results,yolo_keypoints_results,image)
           mask_predictor.set_image(image)
 
           masks, scores, logits = mask_predictor.predict(
