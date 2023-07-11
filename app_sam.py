@@ -16,6 +16,8 @@ import torch
 import cv2
 from skimage.morphology import skeletonize
 from sklearn.metrics.pairwise import euclidean_distances
+from streamlit_drawable_canvas import st_canvas
+import pandas as pd
 
 class StreamlitApp(L.app.components.ServeStreamlit):
     def show_anns(self, anns):
@@ -76,14 +78,6 @@ class StreamlitApp(L.app.components.ServeStreamlit):
         img_copy = np.copy(image)
         for point in centers:
             cv2.circle(img_copy, tuple(point), 1, (255,0,0),10)
-        # shift_amout_front = st.slider('front line shifter percent wrt whole length')
-        # shift_amout_back = st.slider('back line shifter percent wrt whole length')
-        # x_min,x_max = x_min + shift_amout_front*(x_max-x_min)*0.01 , x_max - shift_amout_back*(x_max-x_min)*0.01
-
-        # shift_amout_up = st.slider('up line shifter percent wrt whole length')
-        # shift_amout_down = st.slider('down line shifter percent wrt whole length')
-        # y_min,y_max = y_min + shift_amout_front*(y_max-y_min)*0.01 , y_max - shift_amout_back*(y_max-y_min)*0.01
-        # if st.button("render"):
         cv2.rectangle(img_copy,[int(x_min),int(y_min)],[int(x_max),int(y_max)],color, thickness)
         st.image(img_copy) 
 
@@ -95,8 +89,10 @@ class StreamlitApp(L.app.components.ServeStreamlit):
         uploaded_file = st.file_uploader("Choose a file")
 
         if uploaded_file is not None:
+          
           image = st.image(uploaded_file,use_column_width=True)
           image = self.read_img(uploaded_file)
+
           st.text(f"Image shape is : {image.shape}")
           mask_predictor , yolo_model , keypoint_yolo = self.model
           yolo_results  =yolo_model(image,size = 640)
