@@ -20,6 +20,7 @@ class StreamlitApp(L.app.components.ServeStreamlit):
     def read_vid_and_save_in_folder(self,vid_path,parent_folder = '/nfs/hpc/share/karkisa/AI cap/sturdy-eureka/yolo_training_data/test_data/210914'):
         vid_ca = cv2.VideoCapture(vid_path)
         extention = self.get_name_extention(vid_path)
+        st.text(f"Going through {extention}.MOV")
         save_folder =parent_folder + '/' + extention
         if not os.path.exists(save_folder):
             os.mkdir(save_folder)
@@ -39,23 +40,27 @@ class StreamlitApp(L.app.components.ServeStreamlit):
                         cv2.imwrite(save_folder+'/'+name,frame)
                 
             else :
-                 st.success('another video analysed')
+                 st.success(f'{extention}.MOV  analysed')
                  break
     
     def render(self):
         st.title("Extract Frames and Save important frames")
         st.subheader("Enter location of the folder that contains videos")
-        vid_folder_path = st.text_input("select sorce folder")
-        # vid_folder_path = '/'.join(vid_folder_path.split('/')[:-1])
+        vid_folders_path = st.text_input("select sorce folder")
         st.subheader("Enter location of folder where you want to save frames with whales")
         save_folder_path =  st.text_input("select destination folder")
-        # save_folder_path = '/'.join(save_folder_path.split('/')[:-1])
         st.echo(save_folder_path)
         if st.button('start'):
-            list_p = os.listdir(vid_folder_path)
-            list_p = [os.path.join(vid_folder_path,p) for p in list_p]
-            print(list_p)
-            for vid_path in list_p:
-                self.read_vid_and_save_in_folder(vid_path,save_folder_path)
+            list_folders = os.listdir(vid_folders_path)
+            list_folders =[os.path.join(vid_folders_path,p) for p in list_folders]
+            
+            for vid_folder_path in list_folders:
+                st.text(f'Analysing {vid_folder_path.split("/")[-1]} folder')
+                list_p = os.listdir(vid_folder_path)
+                list_p = [os.path.join(vid_folder_path,p) for p in list_p]
+                print(list_p)
+                for vid_path in list_p:
+                    self.read_vid_and_save_in_folder(vid_path,save_folder_path)
+                st.success(f'{vid_folder_path.split("/")[-1]} folder analysed')
 
 app = L.LightningApp(StreamlitApp())

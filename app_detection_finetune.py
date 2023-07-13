@@ -29,7 +29,6 @@ class StreamlitApp(L.app.components.ServeStreamlit):
             os.mkdir(save_folder)
 
         count = 0
-        # vid_ca.set(cv2.CAP_PROP_POS_MSEC, 1000*int(start))
         b = st.button("break")
         factor = 1000/int(frame_rate)
         while vid_ca.isOpened():
