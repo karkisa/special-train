@@ -16,7 +16,7 @@ import torch
 import cv2
 from skimage.morphology import skeletonize
 from sklearn.metrics.pairwise import euclidean_distances
-from streamlit_drawable_canvas import st_canvas
+# from streamlit_drawable_canvas import st_canvas
 import pandas as pd
 
 class StreamlitApp(L.app.components.ServeStreamlit):
