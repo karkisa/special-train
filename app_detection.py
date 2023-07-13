@@ -30,7 +30,8 @@ class StreamlitApp(L.app.components.ServeStreamlit):
             t_msec = 1000*(count)
             vid_ca.set(cv2.CAP_PROP_POS_MSEC, t_msec)
             ret, frame = vid_ca.read()
-            name = str(count)+'_'+ extention +'.png'
+            minutes , seconds = count//60, count%60
+            name = str(minutes)+'_'+str(seconds)+'_'+ extention +'.png'
 
             if ret :
                 yolo_results = self.model(frame,size = 640)
