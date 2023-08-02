@@ -49,11 +49,12 @@ class StreamlitApp(L.app.components.ServeStreamlit):
         st.subheader("Enter location of the folder that contains videos")
         vid_folders_path = st.text_input("select sorce folder")
         st.subheader("Enter location of folder where you want to save frames with whales")
-        save_folder_path =  st.text_input("select destination folder")
+        save_folder_path =  st.text_input("select destination folder","save_detections")
         st.echo(save_folder_path)
         if st.button('start'):
             list_folders = os.listdir(vid_folders_path)
             list_folders =[os.path.join(vid_folders_path,p) for p in list_folders]
+            
             
             for vid_folder_path in list_folders:
                 st.text(f'Analysing {vid_folder_path.split("/")[-1]} folder')

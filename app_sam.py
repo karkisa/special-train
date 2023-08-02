@@ -40,7 +40,7 @@ class StreamlitApp(L.app.components.ServeStreamlit):
         # detection model
         yolo_model = torch.hub.load('ultralytics/yolov5', 'custom', path='best.pt')
 
-        keypoint_yolo = torch.hub.load('ultralytics/yolov5', 'custom', path='keypoint_best.pt')
+        keypoint_yolo = torch.hub.load('ultralytics/yolov5', 'custom', path='best_7pts.pt')
 
         DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         MODEL_TYPE = "vit_h"
