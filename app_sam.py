@@ -59,17 +59,22 @@ class StreamlitApp(L.app.components.ServeStreamlit):
       return image
     def get_centers(self,df):
         centers, classes = [],[]
+        mask_labels = []
         for idx , row in df.iterrows():
             centers.append((int((row['xmax'] + row['xmin'])/2), int((row['ymax'] + row['ymin'])/2)))
             classes.append(row['class'])
+            if row['class']==6:
+                mask_labels.append(0)
+            else:
+                mask_labels.append(1)
 
-        return centers,classes
+        return np.array(centers),classes,np.array(mask_labels)
 
     def detection_op(self,yolo_results, yolo_keypoints_results,image):
 
         st.write(yolo_results.pandas().xyxy[0])
         st.write(yolo_keypoints_results.pandas().xyxy[0])
-        centers,classes = self.get_centers(yolo_keypoints_results.pandas().xyxy[0])
+        centers,classes,mask_labels = self.get_centers(yolo_keypoints_results.pandas().xyxy[0])
         x_min,y_min,x_max,y_max,confi,cla = yolo_results.xyxy[0][0].numpy()
         
         color = (255, 0, 0)
@@ -80,8 +85,42 @@ class StreamlitApp(L.app.components.ServeStreamlit):
             cv2.circle(img_copy, tuple(point), 1, (255,0,0),10)
         cv2.rectangle(img_copy,[int(x_min),int(y_min)],[int(x_max),int(y_max)],color, thickness)
         st.image(img_copy) 
+        box_cordinates = np.array([x_min,y_min,x_max,y_max])
+        return box_cordinates,centers,mask_labels
+    
+    def analyse_mask_basic(self,image,mask):
+            pixels = cv2.countNonZero(mask)
+            st.text(f"pixels covered by seleted area {pixels}"
+                )
+            contours, _ = cv2.findContours(np.array(mask, np.uint8), cv2.RETR_TREE,
+                                cv2.CHAIN_APPROX_SIMPLE)
+            cnt = max(contours, key = cv2.contourArea)
+            
+            def midpoint(ptA, ptB): return ((ptA[0] + ptB[0]) * 0.5, (ptA[1] + ptB[1]) * 0.5)
 
-        return x_min,y_min,x_max,y_max
+            # take the first contour
+            rect = cv2.minAreaRect(cnt)
+            box = cv2.boxPoints(rect)
+            box = np.int0(box)
+            # Line thickness of 2 px
+            (tl, tr, br, bl) = box
+
+            (tltrX, tltrY) = midpoint(tl,tr)
+            (blbrX, blbrY) = midpoint(bl,br)
+            (tlblX, tlblY) = midpoint(tl, bl)
+            (trbrX, trbrY) = midpoint(tr, br)
+
+            distance1 = np.sqrt(np.sum(np.square(np.array([int(tlblX), int(tlblY)])-  np.array([int(trbrX), int(trbrY)]))))
+            distance2 = np.sqrt(np.sum(np.square(np.array([int(tltrX), int(tltrY)])-  np.array([int(blbrX), int(blbrY)]))))
+            cv2.drawContours(image, [box], 0, (0, 0, 255), 2)
+            if distance1>=distance2:
+                cv2.line(image, (int(tlblX), int(tlblY)), (int(trbrX), int(trbrY)),(255, 0, 255), 2)
+                st.text(f'length in pixels : euclidian(p1,p2) {distance1}')
+            else :
+                cv2.line(image, (int(tltrX), int(tltrY)), (int(blbrX), int(blbrY)),(255, 0, 255), 2)
+                st.text(f'length in pixels : euclidian(p1,p2) {distance2}')
+
+            st.image(image)
     
 
     def render(self):
@@ -98,48 +137,20 @@ class StreamlitApp(L.app.components.ServeStreamlit):
           yolo_results  =yolo_model(image,size = 640)
           yolo_keypoints_results = keypoint_yolo(image, size= 640)
 
-          x_min,y_min,x_max,y_max = self.detection_op(yolo_results,yolo_keypoints_results,image)
+          box_cords,centers,mask_labels = self.detection_op(yolo_results,yolo_keypoints_results,image)
           mask_predictor.set_image(image)
 
           masks, scores, logits = mask_predictor.predict(
-            box=np.array([x_min,y_min,x_max,y_max]),
+            # box=box_cords,
+            point_coords=centers,
+            point_labels=mask_labels,
             multimask_output=False
                 )
           mask = masks[0].astype(float)
           st.image(mask)
-          pixels = cv2.countNonZero(mask)
-          st.text(f"pixels covered by seleted area {pixels}"
-            )
-        #   ret, thresh = cv2.threshold(mask, 127, 255, 0)
-          contours, _ = cv2.findContours(np.array(mask, np.uint8), cv2.RETR_TREE,
-                               cv2.CHAIN_APPROX_SIMPLE)
-          cnt = max(contours, key = cv2.contourArea)
+
+
           
-          def midpoint(ptA, ptB): return ((ptA[0] + ptB[0]) * 0.5, (ptA[1] + ptB[1]) * 0.5)
-
-          # take the first contour
-          rect = cv2.minAreaRect(cnt)
-          box = cv2.boxPoints(rect)
-          box = np.int0(box)
-        # Line thickness of 2 px
-          (tl, tr, br, bl) = box
-
-          (tltrX, tltrY) = midpoint(tl,tr)
-          (blbrX, blbrY) = midpoint(bl,br)
-          (tlblX, tlblY) = midpoint(tl, bl)
-          (trbrX, trbrY) = midpoint(tr, br)
-
-          distance1 = np.sqrt(np.sum(np.square(np.array([int(tlblX), int(tlblY)])-  np.array([int(trbrX), int(trbrY)]))))
-          distance2 = np.sqrt(np.sum(np.square(np.array([int(tltrX), int(tltrY)])-  np.array([int(blbrX), int(blbrY)]))))
-          cv2.drawContours(image, [box], 0, (0, 0, 255), 2)
-          if distance1>=distance2:
-              cv2.line(image, (int(tlblX), int(tlblY)), (int(trbrX), int(trbrY)),(255, 0, 255), 2)
-              st.text(f'length in pixels : euclidian(p1,p2) {distance1}')
-          else :
-              cv2.line(image, (int(tltrX), int(tltrY)), (int(blbrX), int(blbrY)),(255, 0, 255), 2)
-              st.text(f'length in pixels : euclidian(p1,p2) {distance2}')
-
-          st.image(image)
           
         
 app = L.LightningApp(StreamlitApp())
