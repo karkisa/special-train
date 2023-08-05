@@ -18,6 +18,8 @@ from skimage.morphology import skeletonize
 from sklearn.metrics.pairwise import euclidean_distances
 # from streamlit_drawable_canvas import st_canvas
 import pandas as pd
+from scipy.special import comb
+import bezier
 
 class StreamlitApp(L.app.components.ServeStreamlit):
     def show_anns(self, anns):
@@ -57,24 +59,90 @@ class StreamlitApp(L.app.components.ServeStreamlit):
       image = Image.open(uploaded_file).convert('RGB')
       image = np.array(image)
       return image
+    
+    def B(self,i, N, t):
+        val = comb(N,i) * t**i * (1.-t)**(N-i)
+        return val
+        
+    def P(self,t, X):
+        '''
+        xx = P(t, X)
+        
+        Evaluates a Bezier curve for the points in X.
+        
+        Inputs:
+        X is a list (or array) or 2D coords
+        t is a number (or list of numbers) in [0,1] where you want to
+            evaluate the Bezier curve
+        
+        Output:
+        xx is the set of 2D points along the Bezier curve
+        '''
+        X = np.array(X)
+        N,d = np.shape(X)   # Number of points, Dimension of points
+        N = N - 1
+        xx = np.zeros((len(t), d))
+        
+        for i in range(N+1):
+            xx += np.outer(self.B(i, N, t), X[i])
+        return xx
+    
+    def get_bezire_curve(self,img,centers):
+        n_points = st.text_input("number of points for bezier curve",200)
+        distance = np.linspace(0, 1, int(n_points))
+        curve_points = self.P(distance, centers)
+        nodes1 = np.asfortranarray([
+            curve_points[:,0], curve_points[:,1]
+            ])
+        st.text(f"[height,width,channels] of image : {img.shape}")
+        curve1 = bezier.Curve(nodes1, degree=len(curve_points)-1)
+        arc_length_pixels = curve1.length
+        st.text(f"length in pixel =  {arc_length_pixels}")
+        # ev= curve1.evaluate(0.25)
+        # ev = [int(ev[0]),int(ev[1])]
+        # cv2.circle(img,tuple(ev),1, (0,255,255),10)
+        st.image(img)
+        for x,y in curve_points:
+            cv2.circle(img, tuple((int(x),int(y))), 1, (255,0,0),10)
+        st.image(img)
+        sensor_width  = eval(st.text_input("Set camera sensor width in mm", 17.3))
+        focal_length = eval(st.text_input("Set focal length in mm ",25 ))
+        altitude = eval(st.text_input("Set altitude in meters", 50))
+        img_width = img.shape[1]
+        st.text(f"found image width ot be : {img_width}")
+        length_meters = (altitude/focal_length)*(sensor_width/img_width)*arc_length_pixels
+        st.text(f"The Length in meters is {length_meters}")
+
+        return
+    
     def get_centers(self,df):
-        centers, classes = [],[]
+        conf = [-1]*6
+        fins = []
+        centers = [[0,0]]*6
         mask_labels = []
         for idx , row in df.iterrows():
-            centers.append((int((row['xmax'] + row['xmin'])/2), int((row['ymax'] + row['ymin'])/2)))
-            classes.append(row['class'])
+            key_pt = [int((row['xmax'] + row['xmin'])/2), int((row['ymax'] + row['ymin'])/2)]
+            
             if row['class']==6:
-                mask_labels.append(0)
-            else:
-                mask_labels.append(1)
+                fins.append(key_pt)
 
-        return np.array(centers),classes,np.array(mask_labels)
+            else:
+                if centers[row['class']]==[0,0] or row["confidence"]>conf[row['class']] :
+                    centers[row['class']]=key_pt
+                    mask_labels.append(1)  # 1 vor visibilty
+
+        for pts in fins:
+            centers.append(pts)
+            mask_labels.append(0)   # point not included in mask
+
+
+        return np.array(centers),np.array(mask_labels)
 
     def detection_op(self,yolo_results, yolo_keypoints_results,image):
 
         st.write(yolo_results.pandas().xyxy[0])
         st.write(yolo_keypoints_results.pandas().xyxy[0])
-        centers,classes,mask_labels = self.get_centers(yolo_keypoints_results.pandas().xyxy[0])
+        centers,mask_labels = self.get_centers(yolo_keypoints_results.pandas().xyxy[0])
         x_min,y_min,x_max,y_max,confi,cla = yolo_results.xyxy[0][0].numpy()
         
         color = (255, 0, 0)
@@ -138,16 +206,19 @@ class StreamlitApp(L.app.components.ServeStreamlit):
           yolo_keypoints_results = keypoint_yolo(image, size= 640)
 
           box_cords,centers,mask_labels = self.detection_op(yolo_results,yolo_keypoints_results,image)
-          mask_predictor.set_image(image)
+          
+          self.get_bezire_curve(image.copy(),centers[:6])  # centers on ly first 5 points because rest of the points are on fin. The first 6 are on central body.
 
-          masks, scores, logits = mask_predictor.predict(
-            # box=box_cords,
-            point_coords=centers,
-            point_labels=mask_labels,
-            multimask_output=False
-                )
-          mask = masks[0].astype(float)
-          st.image(mask)
+
+        #   mask_predictor.set_image(image)
+        #   masks, scores, logits = mask_predictor.predict(
+        #     # box=box_cords,
+        #     point_coords=centers,
+        #     point_labels=mask_labels,
+        #     multimask_output=False
+        #         )
+        #   mask = masks[0].astype(float)
+        #   st.image(mask)
 
 
           
