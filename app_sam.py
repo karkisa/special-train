@@ -43,7 +43,6 @@ class StreamlitApp(L.app.components.ServeStreamlit):
         yolo_model = torch.hub.load('ultralytics/yolov5', 'custom', path='best.pt')
 
         keypoint_yolo = torch.hub.load('ultralytics/yolov5', 'custom', path='best_7pts.pt')
-
         DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         MODEL_TYPE = "vit_h"
         CHECKPOINT_PATH = 'sam_vit_h_4b8939.pth'
@@ -87,7 +86,7 @@ class StreamlitApp(L.app.components.ServeStreamlit):
             xx += np.outer(self.B(i, N, t), X[i])
         return xx
     
-    def get_bezire_curve(self,img,centers):
+    def get_bezire_curve(self,img,centers,alt):
         n_points = st.text_input("number of points for bezier curve",200)
         distance = np.linspace(0, 1, int(n_points))
         curve_points = self.P(distance, centers)
@@ -97,17 +96,13 @@ class StreamlitApp(L.app.components.ServeStreamlit):
         st.text(f"[height,width,channels] of image : {img.shape}")
         curve1 = bezier.Curve(nodes1, degree=len(curve_points)-1)
         arc_length_pixels = curve1.length
-        st.text(f"length in pixel =  {arc_length_pixels}")
-        # ev= curve1.evaluate(0.25)
-        # ev = [int(ev[0]),int(ev[1])]
-        # cv2.circle(img,tuple(ev),1, (0,255,255),10)
-        st.image(img)
+        st.text(f"length in pixel =  {arc_length_pixels}, {arc_length_pixels*0.0002645833 }")
         for x,y in curve_points:
             cv2.circle(img, tuple((int(x),int(y))), 1, (255,0,0),10)
         st.image(img)
         sensor_width  = eval(st.text_input("Set camera sensor width in mm", 17.3))
         focal_length = eval(st.text_input("Set focal length in mm ",25 ))
-        altitude = eval(st.text_input("Set altitude in meters", 50))
+        altitude = eval(st.text_input("Set altitude in meters", alt))
         img_width = img.shape[1]
         st.text(f"found image width ot be : {img_width}")
         length_meters = (altitude/focal_length)*(sensor_width/img_width)*arc_length_pixels
@@ -194,20 +189,20 @@ class StreamlitApp(L.app.components.ServeStreamlit):
     def render(self):
         st.title("Morphology Assistant")
         uploaded_file = st.file_uploader("Choose a file")
-
+        alt = uploaded_file.name.split("_")[3:5]
+        alt = float(alt[0])+float(alt[1])/(10*len(alt[1]))
         if uploaded_file is not None:
           
           image = st.image(uploaded_file,use_column_width=True)
           image = self.read_img(uploaded_file)
 
-          st.text(f"Image shape is : {image.shape}")
           mask_predictor , yolo_model , keypoint_yolo = self.model
           yolo_results  =yolo_model(image,size = 640)
           yolo_keypoints_results = keypoint_yolo(image, size= 640)
 
           box_cords,centers,mask_labels = self.detection_op(yolo_results,yolo_keypoints_results,image)
           
-          self.get_bezire_curve(image.copy(),centers[:6])  # centers on ly first 5 points because rest of the points are on fin. The first 6 are on central body.
+          self.get_bezire_curve(image.copy(),centers[:6],alt)  # centers on ly first 5 points because rest of the points are on fin. The first 6 are on central body.
 
 
         #   mask_predictor.set_image(image)

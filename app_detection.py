@@ -3,21 +3,46 @@
 # !pip install torch
 import lightning as L
 import streamlit as st
+import pandas as pd
 import cv2, torch, warnings,os
 warnings.filterwarnings('ignore')
 
 class StreamlitApp(L.app.components.ServeStreamlit):
     def build_model(self):
         model = torch.hub.load('ultralytics/yolov5', 'custom', path='best.pt')
+
         return model
     
+    def get_df(self,path):
+
+        os.system(f"exiftool -ee {path} > output.txt")
+        df = pd.DataFrame(columns=["Sec","H"])
+        with open('output.txt') as file:
+            i = -1
+            
+            for line in file:
+                if "Sample Time" in line:
+                    i+=1
+                    if 's' in line:
+                        s = float(line.split(':')[1].split('s')[0])
+                    else:
+                        s  = line.split(':')
+                        s = int(s[-2])*60 + int(s[-1])
+                    df.loc[i] = [s,0]
+                    
+                if "GPS Altitude" in line  and "Ref" not in  line:
+                    if df.loc[i][1]==0: # there is an extra "GPS Altitude" in srt file towards the end
+                        df.loc[i][1] = float(line.split(':')[1].split('m')[0])
+
+        os.system("rm output.txt")
+        return df
     def get_name_extention(self,path):
         path=path.split('/')
         s=path[-1]
         s = s.split('.')
         return s[0]
     
-    def read_vid_and_save_in_folder(self,vid_path,parent_folder = '/nfs/hpc/share/karkisa/AI cap/sturdy-eureka/yolo_training_data/test_data/210914'):
+    def read_vid_and_save_in_folder(self,vid_path,df,parent_folder = '/nfs/hpc/share/karkisa/AI cap/sturdy-eureka/yolo_training_data/test_data/210914'):
         vid_ca = cv2.VideoCapture(vid_path)
         extention = self.get_name_extention(vid_path)
         st.text(f"Going through {extention}.MOV")
@@ -31,7 +56,8 @@ class StreamlitApp(L.app.components.ServeStreamlit):
             vid_ca.set(cv2.CAP_PROP_POS_MSEC, t_msec)
             ret, frame = vid_ca.read()
             minutes , seconds = count//60, count%60
-            name = str(minutes)+'_'+str(seconds)+'_'+ extention +'.png'
+            alt = ("_").join(str(df["H"][count]).split("."))
+            name = str(minutes)+'_'+str(seconds)+'_0_'+alt+'_'+ extention +'.png'
 
             if ret :
                 yolo_results = self.model(frame,size = 640)
@@ -62,7 +88,9 @@ class StreamlitApp(L.app.components.ServeStreamlit):
                 list_p = [os.path.join(vid_folder_path,p) for p in list_p]
                 print(list_p)
                 for vid_path in list_p:
-                    self.read_vid_and_save_in_folder(vid_path,save_folder_path)
+                    df = self.get_df(vid_path)
+                    self.read_vid_and_save_in_folder(vid_path,df,save_folder_path)
+
                 st.success(f'{vid_folder_path.split("/")[-1]} folder analysed')
 
 app = L.LightningApp(StreamlitApp())

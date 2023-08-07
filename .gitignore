@@ -6,3 +6,4 @@ testing_dat_w_measurements.csv
 __pycache__/
 keypoint_best.pt
 best_7pts.pt
+testing_vids/
