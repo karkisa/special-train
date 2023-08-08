@@ -115,6 +115,9 @@ class StreamlitApp(L.app.components.ServeStreamlit):
         fins = []
         centers = [[0,0]]*6
         mask_labels = []
+        if df[df["class"]!=6]["class"].nunique()<6:
+            st.text("Not all 6 key points detected. Try generating more frames using finetnuing app")
+            return None,None
         for idx , row in df.iterrows():
             key_pt = [int((row['xmax'] + row['xmin'])/2), int((row['ymax'] + row['ymin'])/2)]
             
@@ -144,12 +147,28 @@ class StreamlitApp(L.app.components.ServeStreamlit):
         # Line thickness of 2 px
         thickness = 2
         img_copy = np.copy(image)
+        
+        if  centers==None:
+            return None,None,None
+
         for point in centers:
             cv2.circle(img_copy, tuple(point), 1, (255,0,0),10)
         cv2.rectangle(img_copy,[int(x_min),int(y_min)],[int(x_max),int(y_max)],color, thickness)
         st.image(img_copy) 
         box_cordinates = np.array([x_min,y_min,x_max,y_max])
         return box_cordinates,centers,mask_labels
+    
+    def get_roi(self,mask_predictor,image,centers,mask_labels):
+          mask_predictor.set_image(image)
+          masks, scores, logits = mask_predictor.predict(
+            # box=box_cords,
+            point_coords=centers,
+            point_labels=mask_labels,
+            multimask_output=False
+                )
+          mask = masks[0].astype(float)
+          st.image(mask)
+          return  
     
     def analyse_mask_basic(self,image,mask):
             pixels = cv2.countNonZero(mask)
@@ -189,8 +208,10 @@ class StreamlitApp(L.app.components.ServeStreamlit):
     def render(self):
         st.title("Morphology Assistant")
         uploaded_file = st.file_uploader("Choose a file")
-        alt = uploaded_file.name.split("_")[3:5]
-        alt = float(alt[0])+float(alt[1])/(10*len(alt[1]))
+        alt = 50
+        if uploaded_file:
+            alt = uploaded_file.name.split("_")[3:5]
+            alt = float(alt[0])+float(alt[1])/(10*len(alt[1]))
         if uploaded_file is not None:
           
           image = st.image(uploaded_file,use_column_width=True)
@@ -201,19 +222,12 @@ class StreamlitApp(L.app.components.ServeStreamlit):
           yolo_keypoints_results = keypoint_yolo(image, size= 640)
 
           box_cords,centers,mask_labels = self.detection_op(yolo_results,yolo_keypoints_results,image)
-          
-          self.get_bezire_curve(image.copy(),centers[:6],alt)  # centers on ly first 5 points because rest of the points are on fin. The first 6 are on central body.
+          if centers:
+            self.get_bezire_curve(image.copy(),centers[:6],alt)  # centers on ly first 5 points because rest of the points are on fin. The first 6 are on central body.
+        #   self.get_roi(self,mask_predictor,image,centers,mask_labels)
 
 
-        #   mask_predictor.set_image(image)
-        #   masks, scores, logits = mask_predictor.predict(
-        #     # box=box_cords,
-        #     point_coords=centers,
-        #     point_labels=mask_labels,
-        #     multimask_output=False
-        #         )
-        #   mask = masks[0].astype(float)
-        #   st.image(mask)
+        
 
 
           
