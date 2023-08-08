@@ -117,7 +117,7 @@ class StreamlitApp(L.app.components.ServeStreamlit):
         mask_labels = []
         if df[df["class"]!=6]["class"].nunique()<6:
             st.text("Not all 6 key points detected. Try generating more frames using finetnuing app")
-            return None,None
+            return [],None
         for idx , row in df.iterrows():
             key_pt = [int((row['xmax'] + row['xmin'])/2), int((row['ymax'] + row['ymin'])/2)]
             
@@ -148,8 +148,8 @@ class StreamlitApp(L.app.components.ServeStreamlit):
         thickness = 2
         img_copy = np.copy(image)
         
-        if  centers==None:
-            return None,None,None
+        if  len(centers)==0:
+            return None,[],None
 
         for point in centers:
             cv2.circle(img_copy, tuple(point), 1, (255,0,0),10)
@@ -208,10 +208,14 @@ class StreamlitApp(L.app.components.ServeStreamlit):
     def render(self):
         st.title("Morphology Assistant")
         uploaded_file = st.file_uploader("Choose a file")
-        alt = 50
         if uploaded_file:
             alt = uploaded_file.name.split("_")[3:5]
-            alt = float(alt[0])+float(alt[1])/(10*len(alt[1]))
+            try :
+                alt = float(alt[0])+float(alt[1])/(10*len(alt[1]))
+
+            except:
+                alt = 50
+
         if uploaded_file is not None:
           
           image = st.image(uploaded_file,use_column_width=True)
@@ -222,7 +226,7 @@ class StreamlitApp(L.app.components.ServeStreamlit):
           yolo_keypoints_results = keypoint_yolo(image, size= 640)
 
           box_cords,centers,mask_labels = self.detection_op(yolo_results,yolo_keypoints_results,image)
-          if centers:
+          if len(centers):
             self.get_bezire_curve(image.copy(),centers[:6],alt)  # centers on ly first 5 points because rest of the points are on fin. The first 6 are on central body.
         #   self.get_roi(self,mask_predictor,image,centers,mask_labels)
 
