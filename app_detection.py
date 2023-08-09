@@ -49,6 +49,8 @@ class StreamlitApp(L.app.components.ServeStreamlit):
         save_folder =parent_folder + '/' + extention
         if not os.path.exists(save_folder):
             os.mkdir(save_folder)
+
+        ln = len(df)
         count = 0
         while vid_ca.isOpened():
             count+=1
@@ -56,7 +58,10 @@ class StreamlitApp(L.app.components.ServeStreamlit):
             vid_ca.set(cv2.CAP_PROP_POS_MSEC, t_msec)
             ret, frame = vid_ca.read()
             minutes , seconds = count//60, count%60
-            alt = ("_").join(str(df["H"][count]).split("."))
+            
+            if count<ln:
+
+                alt = ("_").join(str(df["H"][count]).split("."))
             name = str(minutes)+'_'+str(seconds)+'_0_'+alt+'_'+ extention +'.png'
 
             if ret :
@@ -89,6 +94,7 @@ class StreamlitApp(L.app.components.ServeStreamlit):
                 print(list_p)
                 for vid_path in list_p:
                     df = self.get_df(vid_path)
+                    st.dataframe(df)
                     if len(df):
                         self.read_vid_and_save_in_folder(vid_path,df,save_folder_path)
 
