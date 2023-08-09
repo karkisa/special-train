@@ -101,11 +101,19 @@ class StreamlitApp(L.app.components.ServeStreamlit):
 
         if st.button('start'):
             start  = start.split('-')
-            start = int(start[0])*60 + int(start[1])
+            try:
+                start = int(start[0])*60 + int(start[1])
+            except:
+                start = 0
             end  = end.split('-')
-            end = int(end[0])*60 + int(end[1])
+            try:
+                end = int(end[0])*60 + int(end[1])
+            except:
+                end = 300
             st.text(str(start)+ '-' + str(end))
-            self.read_vid_and_save_in_folder(vid_path,start, end ,float(thresh),int(frame_rate), save_folder_path,display)
+            print(len(self.df))
+            if len(self.df):
+                self.read_vid_and_save_in_folder(vid_path,start, end ,float(thresh),int(frame_rate), save_folder_path,display)
 
 
 app = L.LightningApp(StreamlitApp())

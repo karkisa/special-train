@@ -89,7 +89,8 @@ class StreamlitApp(L.app.components.ServeStreamlit):
                 print(list_p)
                 for vid_path in list_p:
                     df = self.get_df(vid_path)
-                    self.read_vid_and_save_in_folder(vid_path,df,save_folder_path)
+                    if len(df):
+                        self.read_vid_and_save_in_folder(vid_path,df,save_folder_path)
 
                 st.success(f'{vid_folder_path.split("/")[-1]} folder analysed')
 
