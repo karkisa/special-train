@@ -95,20 +95,12 @@ class StreamlitApp(L.app.components.ServeStreamlit):
             ])
         st.text(f"[height,width,channels] of image : {img.shape}")
         curve1 = bezier.Curve(nodes1, degree=len(curve_points)-1)
-        arc_length_pixels = curve1.length
-        st.text(f"length in pixel =  {arc_length_pixels}, {arc_length_pixels*0.0002645833 }")
+        
         for x,y in curve_points:
             cv2.circle(img, tuple((int(x),int(y))), 1, (255,0,0),10)
         st.image(img)
-        sensor_width  = eval(st.text_input("Set camera sensor width in mm", 17.3))
-        focal_length = eval(st.text_input("Set focal length in mm ",25 ))
-        altitude = eval(st.text_input("Set altitude in meters", alt))
-        img_width = img.shape[1]
-        st.text(f"found image width ot be : {img_width}")
-        length_meters = (altitude/focal_length)*(sensor_width/img_width)*arc_length_pixels
-        st.text(f"The Length in meters is {length_meters}")
 
-        return
+        return curve_points,curve1
     
     def get_centers(self,df):
         conf = [-1]*6
@@ -132,7 +124,6 @@ class StreamlitApp(L.app.components.ServeStreamlit):
         for pts in fins:
             centers.append(pts)
             mask_labels.append(0)   # point not included in mask
-
 
         return np.array(centers),np.array(mask_labels)
 
@@ -168,7 +159,7 @@ class StreamlitApp(L.app.components.ServeStreamlit):
                 )
           mask = masks[0].astype(float)
           st.image(mask)
-          return  
+          return  mask
     
     def analyse_mask_basic(self,image,mask):
             pixels = cv2.countNonZero(mask)
@@ -203,7 +194,113 @@ class StreamlitApp(L.app.components.ServeStreamlit):
                 st.text(f'length in pixels : euclidian(p1,p2) {distance2}')
 
             st.image(image)
+
+    def analyse_curve(self,curve,image,alt):
+        arc_length_pixels = curve.length
+        st.text(f"length in pixel =  {arc_length_pixels}")
+        sensor_width  = eval(st.text_input("Set camera sensor width in mm", 17.3))
+        focal_length = eval(st.text_input("Set focal length in mm ",25 ))
+        launch_hieght = eval(st.text_input("Set launch altitude in meters", 0))
+        altitude = eval(st.text_input("Set altitude in meters", alt+launch_hieght))
+        img_width = image.shape[1]
+        st.text(f"found image width ot be : {img_width}")
+        length_meters = (altitude/focal_length)*(sensor_width/img_width)*arc_length_pixels
+        st.text(f"The Length in meters is {length_meters}")
+
+        return
     
+    def get_prompts(self,curve_points,mask):
+        ln = len(curve_points)
+        start = eval(st.text_input("set start",0))
+        end = eval(st.text_input("set end",100))
+        start = (start*ln)//100
+        end  = (end*ln)//100
+        pt_masks  = torch.ones((ln))
+        pt_masks[:start]=0
+        pt_masks[end:] = 0
+        return pt_masks
+
+    def render_straight_cuts(self,mask,curve):
+        start = eval(st.text_input("set start",1.25))
+        end = eval(st.text_input("set end",.8))
+
+        x1,y1 = curve.evaluate(start)
+        x2,y2 = curve.evaluate(end)
+        if abs(x2-x1)>abs(y2-y1):
+
+            mask[:,:int((min(x2,x1)))]=0
+            mask[:,int(max(x2,x1)):] = 0
+
+        else:
+            mask[:int((min(y2,y1))),:]=0
+            mask[int(max(y2,y1)):,:] = 0
+            
+        st.image(mask)
+
+    def get_dir(self,p1,p2):
+        if p1<p2:
+            return 1
+        return -1
+    
+    def remove_mask_quads(self,curve,image,mask):
+        start = eval(st.text_input("set start",0.25))
+        end = eval(st.text_input("set end",.8))
+
+        x1,y1 = curve.evaluate(start)
+        x2,y2 =  curve.evaluate(end)
+        
+        if abs(x2-x1)>abs(y2-y1):
+            direction = self.get_dir(x1,x2)
+        else:
+            direction = self.get_dir(y1,y2)
+
+        pt_set1 = self.get_quadpts(start,0.0,direction,curve,image,mask)
+        pt_set2 = self.get_quadpts(end,1.0,-direction,curve,image,mask)
+        return
+    
+
+    def get_quadpts( self,percent,end_pt_ext,direction,curve,image,mask):
+        
+        box_d = 0.15*curve.length
+        extra_length = direction*0.2*curve.length
+
+        sn,sd =  curve.evaluate_hodograph(percent)
+        slope =  -(sd/sn)
+
+        x1,y1 = curve.evaluate(percent)
+
+        pt1 = self.get_point_k_dist(slope,[x1,y1],box_d)
+        pt2 = self.get_point_k_dist(slope,[x1,y1],-box_d)
+       
+
+        x00,y00 = curve.evaluate(end_pt_ext)
+        sn,sd =  curve.evaluate_hodograph(0)
+        slope2 = -(sd/sn)
+        ext_pt = self.get_point_k_dist((sn/sd),[x00,y00],extra_length)
+        cv2.circle(image,ext_pt,1, (255,0,0),10)
+
+        pt3 = self.get_point_k_dist(slope,ext_pt,-box_d)
+        pt4 = self.get_point_k_dist(slope,ext_pt,box_d)
+
+        cv2.circle(image,pt1,1, (255,0,0),10)
+        cv2.circle(image,pt2,1, (255,255,0),10)
+        cv2.circle(image,pt3,1, (0,0,255),10)
+        cv2.circle(image,pt4,1, (255,0,255),10)
+
+        st.image(image)
+        points = np.array([pt1,pt2,pt3,pt4])
+        
+        cv2.fillPoly(mask,pts=np.int32([points]), color=0)
+        st.image(mask)
+        
+        return [pt1,pt2,pt3,pt4]
+
+    def get_point_k_dist(self,slope,pt,d):
+        x1,y1 = pt
+        x2  = x1+d*np.sin(np.arctan(slope))
+        y2 = y1 +d*np.cos(np.arctan(slope))
+
+        return [int(x2),int(y2)]
 
     def render(self):
         st.title("Morphology Assistant")
@@ -224,17 +321,13 @@ class StreamlitApp(L.app.components.ServeStreamlit):
           mask_predictor , yolo_model , keypoint_yolo = self.model
           yolo_results  =yolo_model(image,size = 640)
           yolo_keypoints_results = keypoint_yolo(image, size= 640)
-
+ 
           box_cords,centers,mask_labels = self.detection_op(yolo_results,yolo_keypoints_results,image)
           if len(centers):
-            self.get_bezire_curve(image.copy(),centers[:6],alt)  # centers on ly first 5 points because rest of the points are on fin. The first 6 are on central body.
-        #   self.get_roi(self,mask_predictor,image,centers,mask_labels)
-
-
-        
-
-
-          
+            curve_points, curve = self.get_bezire_curve(image.copy(),centers[:6],alt)  # centers on ly first 5 points because rest of the points are on fin. The first 6 are on central body.
+            self.analyse_curve(curve,image,alt)
+            mask = self.get_roi(mask_predictor,image,centers,mask_labels)
+            self.remove_mask_quads(curve,image,mask)
           
         
 app = L.LightningApp(StreamlitApp())
