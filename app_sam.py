@@ -36,7 +36,6 @@ class StreamlitApp(L.app.components.ServeStreamlit):
                 img[:,:,i] = color_mask[i]
 
             return img
-        # return img #np.dstack((img, m*0.35))
             
     def build_model(self):
         # detection model
@@ -161,6 +160,9 @@ class StreamlitApp(L.app.components.ServeStreamlit):
           st.image(mask)
           return  mask
     
+    def midpoint(self,ptA, ptB):
+        return ((ptA[0] + ptB[0]) * 0.5, (ptA[1] + ptB[1]) * 0.5)
+
     def analyse_mask_basic(self,image,mask):
             pixels = cv2.countNonZero(mask)
             st.text(f"pixels covered by seleted area {pixels}"
@@ -169,7 +171,7 @@ class StreamlitApp(L.app.components.ServeStreamlit):
                                 cv2.CHAIN_APPROX_SIMPLE)
             cnt = max(contours, key = cv2.contourArea)
             
-            def midpoint(ptA, ptB): return ((ptA[0] + ptB[0]) * 0.5, (ptA[1] + ptB[1]) * 0.5)
+            
 
             # take the first contour
             rect = cv2.minAreaRect(cnt)
@@ -178,10 +180,10 @@ class StreamlitApp(L.app.components.ServeStreamlit):
             # Line thickness of 2 px
             (tl, tr, br, bl) = box
 
-            (tltrX, tltrY) = midpoint(tl,tr)
-            (blbrX, blbrY) = midpoint(bl,br)
-            (tlblX, tlblY) = midpoint(tl, bl)
-            (trbrX, trbrY) = midpoint(tr, br)
+            (tltrX, tltrY) = self.midpoint(tl,tr)
+            (blbrX, blbrY) = self.midpoint(bl,br)
+            (tlblX, tlblY) = self.midpoint(tl, bl)
+            (trbrX, trbrY) = self.midpoint(tr, br)
 
             distance1 = np.sqrt(np.sum(np.square(np.array([int(tlblX), int(tlblY)])-  np.array([int(trbrX), int(trbrY)]))))
             distance2 = np.sqrt(np.sum(np.square(np.array([int(tltrX), int(tltrY)])-  np.array([int(blbrX), int(blbrY)]))))
@@ -207,7 +209,7 @@ class StreamlitApp(L.app.components.ServeStreamlit):
         length_meters = (altitude/focal_length)*(sensor_width/img_width)*arc_length_pixels
         st.text(f"The Length in meters is {length_meters}")
 
-        return
+        return length_meters , arc_length_pixels
     
     def get_prompts(self,curve_points,mask):
         ln = len(curve_points)
@@ -243,8 +245,8 @@ class StreamlitApp(L.app.components.ServeStreamlit):
         return -1
     
     def remove_mask_quads(self,curve,image,mask):
-        start = eval(st.text_input("set start",0.25))
-        end = eval(st.text_input("set end",.8))
+        start = eval(st.text_input("set start",0.20))
+        end = eval(st.text_input("set end",0.70))
 
         x1,y1 = curve.evaluate(start)
         x2,y2 =  curve.evaluate(end)
@@ -256,9 +258,12 @@ class StreamlitApp(L.app.components.ServeStreamlit):
 
         pt_set1 = self.get_quadpts(start,0.0,direction,curve,image,mask)
         pt_set2 = self.get_quadpts(end,1.0,-direction,curve,image,mask)
-        return
+        pixels = cv2.countNonZero(mask)
+        st.text(f"pixels covered by seleted area {pixels}"
+                )
+        
+        return pixels, (end-start)
     
-
     def get_quadpts( self,percent,end_pt_ext,direction,curve,image,mask):
         
         box_d = 0.15*curve.length
@@ -292,6 +297,9 @@ class StreamlitApp(L.app.components.ServeStreamlit):
         
         cv2.fillPoly(mask,pts=np.int32([points]), color=0)
         st.image(mask)
+        pixels = cv2.countNonZero(mask)
+        st.text(f"pixels covered by seleted area {pixels}"
+                )
         
         return [pt1,pt2,pt3,pt4]
 
@@ -325,9 +333,10 @@ class StreamlitApp(L.app.components.ServeStreamlit):
           box_cords,centers,mask_labels = self.detection_op(yolo_results,yolo_keypoints_results,image)
           if len(centers):
             curve_points, curve = self.get_bezire_curve(image.copy(),centers[:6],alt)  # centers on ly first 5 points because rest of the points are on fin. The first 6 are on central body.
-            self.analyse_curve(curve,image,alt)
+            length_meters , arc_length_pixels = self.analyse_curve(curve,image,alt)
             mask = self.get_roi(mask_predictor,image,centers,mask_labels)
-            self.remove_mask_quads(curve,image,mask)
-          
+            pixels,percent_roi = self.remove_mask_quads(curve,image,mask)
+            st.text(f"BAI is {pixels/((arc_length_pixels*percent_roi)**2)}")
+
         
 app = L.LightningApp(StreamlitApp())
