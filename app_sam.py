@@ -2,12 +2,11 @@
 # !pip install streamlit omegaconf scipy
 # !pip install torch
 import lightning as L
-import torch
+import torch, math
 from io import BytesIO
 from functools import partial
 import streamlit as st
 import warnings
-warnings.filterwarnings('ignore')
 import numpy as np
 from PIL import Image
 # from segmentation_models_pytorch import Unet
@@ -19,7 +18,8 @@ from sklearn.metrics.pairwise import euclidean_distances
 # from streamlit_drawable_canvas import st_canvas
 import pandas as pd
 from scipy.special import comb
-import bezier
+import bezier, collections
+warnings.filterwarnings('ignore')
 
 class StreamlitApp(L.app.components.ServeStreamlit):
     def show_anns(self, anns):
@@ -104,11 +104,11 @@ class StreamlitApp(L.app.components.ServeStreamlit):
     def get_centers(self,df):
         conf = [-1]*6
         fins = []
-        centers = [[0,0]]*6
+        centers = collections.defaultdict()
+        mark_idx = 0
+
         mask_labels = []
-        if df[df["class"]!=6]["class"].nunique()<6:
-            st.text("Not all 6 key points detected. Try generating more frames using finetnuing app")
-            return [],None
+        
         for idx , row in df.iterrows():
             key_pt = [int((row['xmax'] + row['xmin'])/2), int((row['ymax'] + row['ymin'])/2)]
             
@@ -116,21 +116,28 @@ class StreamlitApp(L.app.components.ServeStreamlit):
                 fins.append(key_pt)
 
             else:
-                if centers[row['class']]==[0,0] or row["confidence"]>conf[row['class']] :
+                if row["confidence"]>conf[row['class']] :
+                    mark_idx+=1
                     centers[row['class']]=key_pt
-                    mask_labels.append(1)  # 1 vor visibilty
+                    conf[row['class']]  = row["confidence"]
+
+        center_pts = []
+        for i in range(0,6):
+            if i in centers:
+                center_pts.append(centers[i])
+                mask_labels.append(1)  # 1 vor visibilty
 
         for pts in fins:
-            centers.append(pts)
+            center_pts.append(pts)
             mask_labels.append(0)   # point not included in mask
-
-        return np.array(centers),np.array(mask_labels)
+        st.text(len(center_pts))
+        return np.array(center_pts),np.array(mask_labels),mark_idx
 
     def detection_op(self,yolo_results, yolo_keypoints_results,image):
 
         st.write(yolo_results.pandas().xyxy[0])
         st.write(yolo_keypoints_results.pandas().xyxy[0])
-        centers,mask_labels = self.get_centers(yolo_keypoints_results.pandas().xyxy[0])
+        centers,mask_labels,mark_idx = self.get_centers(yolo_keypoints_results.pandas().xyxy[0])
         x_min,y_min,x_max,y_max,confi,cla = yolo_results.xyxy[0][0].numpy()
         
         color = (255, 0, 0)
@@ -138,15 +145,15 @@ class StreamlitApp(L.app.components.ServeStreamlit):
         thickness = 2
         img_copy = np.copy(image)
         
-        if  len(centers)==0:
-            return None,[],None
+        if len(centers)==0:
+            return None,[],None,None
 
         for point in centers:
             cv2.circle(img_copy, tuple(point), 1, (255,0,0),10)
         cv2.rectangle(img_copy,[int(x_min),int(y_min)],[int(x_max),int(y_max)],color, thickness)
         st.image(img_copy) 
         box_cordinates = np.array([x_min,y_min,x_max,y_max])
-        return box_cordinates,centers,mask_labels
+        return box_cordinates,centers,mask_labels,mark_idx
     
     def get_roi(self,mask_predictor,image,centers,mask_labels):
           mask_predictor.set_image(image)
@@ -240,6 +247,7 @@ class StreamlitApp(L.app.components.ServeStreamlit):
         st.image(mask)
 
     def get_dir(self,p1,p2):
+        st.text(str(p1)+"_"+str(p2))
         if p1<p2:
             return 1
         return -1
@@ -250,43 +258,40 @@ class StreamlitApp(L.app.components.ServeStreamlit):
 
         x1,y1 = curve.evaluate(start)
         x2,y2 =  curve.evaluate(end)
+        st.text_area(str(abs(x2-x1)))
+        st.text_area(str(abs(y2-y1)))
         
-        if abs(x2-x1)>abs(y2-y1):
-            direction = self.get_dir(x1,x2)
-        else:
-            direction = self.get_dir(y1,y2)
 
-        pt_set1 = self.get_quadpts(start,0.0,direction,curve,image,mask)
-        pt_set2 = self.get_quadpts(end,1.0,-direction,curve,image,mask)
+        pt_set1 = self.get_quadpts(start,0.0,curve,image,mask)
+        pt_set2 = self.get_quadpts(end,1.0,curve,image,mask)
         pixels = cv2.countNonZero(mask)
         st.text(f"pixels covered by seleted area {pixels}"
                 )
         
         return pixels, (end-start)
     
-    def get_quadpts( self,percent,end_pt_ext,direction,curve,image,mask):
-        
+    def get_quadpts( self,percent,end_pt_ext,curve,image,mask):
+        direction = -1 if end_pt_ext==0 else 1
         box_d = 0.15*curve.length
         extra_length = direction*0.2*curve.length
 
-        sn,sd =  curve.evaluate_hodograph(percent)
-        slope =  -(sd/sn)
-
+        vx,vy =  curve.evaluate_hodograph(percent)
         x1,y1 = curve.evaluate(percent)
-
-        pt1 = self.get_point_k_dist(slope,[x1,y1],box_d)
-        pt2 = self.get_point_k_dist(slope,[x1,y1],-box_d)
+        # clockwise - > [1,-1]
+        pt1 = self.get_point_k_dist(vy,-vx,[x1,y1],box_d)
+        pt2 = self.get_point_k_dist(-vy,vx,[x1,y1],box_d)
        
 
         x00,y00 = curve.evaluate(end_pt_ext)
-        sn,sd =  curve.evaluate_hodograph(0)
-        slope2 = -(sd/sn)
-        ext_pt = self.get_point_k_dist((sn/sd),[x00,y00],extra_length)
+        vx,vy =  curve.evaluate_hodograph(end_pt_ext)
+        
+        ext_pt = self.get_point_k_dist(vx,vy,[x00,y00],extra_length)
         cv2.circle(image,ext_pt,1, (255,0,0),10)
 
-        pt3 = self.get_point_k_dist(slope,ext_pt,-box_d)
-        pt4 = self.get_point_k_dist(slope,ext_pt,box_d)
+        pt3 = self.get_point_k_dist(-vy,vx,ext_pt,box_d)
+        pt4 = self.get_point_k_dist(vy,-vx,ext_pt,box_d)
 
+        # cv2.circle(image,[int(x1),int(y1)],1, (255,0,0),10)
         cv2.circle(image,pt1,1, (255,0,0),10)
         cv2.circle(image,pt2,1, (255,255,0),10)
         cv2.circle(image,pt3,1, (0,0,255),10)
@@ -303,11 +308,13 @@ class StreamlitApp(L.app.components.ServeStreamlit):
         
         return [pt1,pt2,pt3,pt4]
 
-    def get_point_k_dist(self,slope,pt,d):
+    def get_point_k_dist(self,vx,vy,pt,d):
         x1,y1 = pt
-        x2  = x1+d*np.sin(np.arctan(slope))
-        y2 = y1 +d*np.cos(np.arctan(slope))
-
+        
+        magnitude = math.sqrt(vx**2 + vy**2)
+        x2 = x1 + (vx/magnitude) * d
+        y2 = y1 + (vy/magnitude) * d
+    
         return [int(x2),int(y2)]
 
     def render(self):
@@ -327,12 +334,12 @@ class StreamlitApp(L.app.components.ServeStreamlit):
           image = self.read_img(uploaded_file)
 
           mask_predictor , yolo_model , keypoint_yolo = self.model
-          yolo_results  =yolo_model(image,size = 640)
+          yolo_results  = yolo_model(image,size = 640)
           yolo_keypoints_results = keypoint_yolo(image, size= 640)
  
-          box_cords,centers,mask_labels = self.detection_op(yolo_results,yolo_keypoints_results,image)
+          box_cords,centers,mask_labels,mark_idx = self.detection_op(yolo_results,yolo_keypoints_results,image)
           if len(centers):
-            curve_points, curve = self.get_bezire_curve(image.copy(),centers[:6],alt)  # centers on ly first 5 points because rest of the points are on fin. The first 6 are on central body.
+            curve_points, curve = self.get_bezire_curve(image.copy(),centers[:mark_idx],alt)  # centers on ly first 5 points because rest of the points are on fin. The first 6 are on central body.
             length_meters , arc_length_pixels = self.analyse_curve(curve,image,alt)
             mask = self.get_roi(mask_predictor,image,centers,mask_labels)
             pixels,percent_roi = self.remove_mask_quads(curve,image,mask)
