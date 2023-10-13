@@ -110,7 +110,7 @@ def get_dir(p1,p2):
         return 1
     return -1
 
-def remove_mask_quads(curve,image,mask,idx):
+def remove_mask_quads(curve,image,mask):
     start = 0.20 
     end = 0.7
 
@@ -120,10 +120,19 @@ def remove_mask_quads(curve,image,mask,idx):
 
     pt_set1 = get_quadpts(start,0.0,curve,image,mask)
     pt_set2 = get_quadpts(end,1.0,curve,image,mask)
-    cv2.imwrite("save_detections/"+str(idx)+"image.png", image)
     pixels = cv2.countNonZero(mask)
+
     
+
     return pixels, (end-start)
+
+def save_img(name,image,mask,centers):
+     
+    mask = cv2.threshold(mask, 0, 255, cv2.THRESH_BINARY)[1]
+    image[mask==255] = (0,255,0)
+    for point in centers:
+            cv2.circle(image, tuple(point), 1, (255,0,0),10)
+    cv2.imwrite("save_detections/"+name, image)
 
 def get_quadpts( percent,end_pt_ext,curve,image,mask):
     direction = -1 if end_pt_ext==0 else 1
@@ -141,16 +150,10 @@ def get_quadpts( percent,end_pt_ext,curve,image,mask):
     vx,vy =  curve.evaluate_hodograph(end_pt_ext)
     
     ext_pt = get_point_k_dist(vx,vy,[x00,y00],extra_length)
-    cv2.circle(image,ext_pt,1, (255,0,0),10)
 
     pt3 = get_point_k_dist(-vy,vx,ext_pt,box_d)
     pt4 = get_point_k_dist(vy,-vx,ext_pt,box_d)
 
-    # cv2.circle(image,[int(x1),int(y1)],1, (255,0,0),10)
-    cv2.circle(image,pt1,1, (255,0,0),10)
-    cv2.circle(image,pt2,1, (255,255,0),10)
-    cv2.circle(image,pt3,1, (0,0,255),10)
-    cv2.circle(image,pt4,1, (255,0,255),10)
 
     points = np.array([pt1,pt2,pt3,pt4])
     
@@ -173,15 +176,16 @@ def analyse_csv(df,base_folder,sensor_width,model,mask_predictor):
      df["bai"]=0
      for idx,row in df.iterrows():
           
-          image_path = os.path.join(base_folder,row["image"])
+          image_path = os.path.join(base_folder,row["Image"])
           image = get_image(image_path)
 
-          altitude = row["Baro_Alt"]
-          focal_length = row["Focal_Length"]
+          altitude = row["Altitude"]
+          focal_length = row["focal_length"]
 
           yolo_keypoints_results = model(image, size= 640)
           results_df = yolo_keypoints_results.pandas().xyxy[0]
           centers,mask_labels,mark_idx= get_centers(results_df)
+
 
           curve,img_width =  get_pixel_length(image,centers[:mark_idx])
           try :
@@ -196,7 +200,8 @@ def analyse_csv(df,base_folder,sensor_width,model,mask_predictor):
             length_meters = (altitude/focal_length)*(sensor_width/img_width)*arc_length_pixels
 
             mask = get_roi(mask_predictor,image,centers,mask_labels)
-            pixels,percent_roi = remove_mask_quads(curve,image,mask,idx)
+            pixels,percent_roi = remove_mask_quads(curve,image,mask)
+            save_img(row["Image"],image,mask,centers)
             bai = pixels/((arc_length_pixels*percent_roi)**2)
 
           df.loc[idx,"model_length_meters"] = length_meters
@@ -206,10 +211,11 @@ def analyse_csv(df,base_folder,sensor_width,model,mask_predictor):
      return df
 
 if __name__=="__main__":
-    csv_path = 'test/GRANITE_230526_to_230724/snapshots/manual_measurements.csv'
-    base_folder = 'test/GRANITE_230526_to_230724/snapshots'
+    csv_path = '/Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/Late_Season_to_measure/Measurement Result.csv'
+    base_folder = '/Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/Late_Season_to_measure'
     sensor_width = 17.3
     keypoint_yolo = torch.hub.load('ultralytics/yolov5', 'custom', path='best_7pts.pt')
+    name = 'name'
     DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     MODEL_TYPE = "vit_h"
     CHECKPOINT_PATH = 'sam_vit_h_4b8939.pth'
@@ -220,4 +226,4 @@ if __name__=="__main__":
 
     df = pd.read_csv(csv_path)
     df = analyse_csv(df,base_folder,sensor_width,keypoint_yolo,mask_predictor)
-    df.to_csv("save_detections/name.csv")
+    df.to_csv(f"save_detections/{name}.csv")

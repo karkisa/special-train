@@ -20,8 +20,9 @@ import pandas as pd
 from scipy.special import comb
 import bezier, collections
 warnings.filterwarnings('ignore')
+from lightning import app       
 
-class StreamlitApp(L.app.components.ServeStreamlit):
+class StreamlitApp(app.components.ServeStreamlit):
     def show_anns(self, anns):
 
         if len(anns) == 0:
@@ -264,6 +265,9 @@ class StreamlitApp(L.app.components.ServeStreamlit):
 
         pt_set1 = self.get_quadpts(start,0.0,curve,image,mask)
         pt_set2 = self.get_quadpts(end,1.0,curve,image,mask)
+        mask2= mask = cv2.threshold(mask, 0, 255, cv2.THRESH_BINARY )[1]
+        image[mask2==255] = (255,0,0)
+        st.image(image)
         pixels = cv2.countNonZero(mask)
         st.text(f"pixels covered by seleted area {pixels}"
                 )
@@ -286,21 +290,22 @@ class StreamlitApp(L.app.components.ServeStreamlit):
         vx,vy =  curve.evaluate_hodograph(end_pt_ext)
         
         ext_pt = self.get_point_k_dist(vx,vy,[x00,y00],extra_length)
-        cv2.circle(image,ext_pt,1, (255,0,0),10)
+        # cv2.circle(image,ext_pt,1, (255,0,0),10)
 
         pt3 = self.get_point_k_dist(-vy,vx,ext_pt,box_d)
         pt4 = self.get_point_k_dist(vy,-vx,ext_pt,box_d)
 
         # cv2.circle(image,[int(x1),int(y1)],1, (255,0,0),10)
-        cv2.circle(image,pt1,1, (255,0,0),10)
-        cv2.circle(image,pt2,1, (255,255,0),10)
-        cv2.circle(image,pt3,1, (0,0,255),10)
-        cv2.circle(image,pt4,1, (255,0,255),10)
+        # cv2.circle(image,pt1,1, (255,0,0),10)
+        # cv2.circle(image,pt2,1, (255,255,0),10)
+        # cv2.circle(image,pt3,1, (0,0,255),10)
+        # cv2.circle(image,pt4,1, (255,0,255),10)
 
         st.image(image)
         points = np.array([pt1,pt2,pt3,pt4])
         
         cv2.fillPoly(mask,pts=np.int32([points]), color=0)
+        
         st.image(mask)
         pixels = cv2.countNonZero(mask)
         st.text(f"pixels covered by seleted area {pixels}"
@@ -345,5 +350,4 @@ class StreamlitApp(L.app.components.ServeStreamlit):
             pixels,percent_roi = self.remove_mask_quads(curve,image,mask)
             st.text(f"BAI is {pixels/((arc_length_pixels*percent_roi)**2)}")
 
-        
-app = L.LightningApp(StreamlitApp())
+app = app.LightningApp(StreamlitApp())
