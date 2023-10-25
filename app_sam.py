@@ -216,6 +216,9 @@ class StreamlitApp(app.components.ServeStreamlit):
         st.text(f"found image width ot be : {img_width}")
         length_meters = (altitude/focal_length)*(sensor_width/img_width)*arc_length_pixels
         st.text(f"The Length in meters is {length_meters}")
+        
+        curve2 = curve.specialize(0.2,0.7)
+        st.text(curve2.length)
 
         return length_meters , arc_length_pixels
     
