@@ -78,7 +78,7 @@ class StreamlitApp(L.app.components.ServeStreamlit):
                  break
     
     def render(self):
-        st.title("Extract Frames and Save important frames")
+        st.title("DeteX")
         st.subheader("Enter location of the folder that contains videos")
         vid_folders_path = st.text_input("select sorce folder")
         st.subheader("Enter location of folder where you want to save frames with whales")

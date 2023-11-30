@@ -326,7 +326,7 @@ class StreamlitApp(app.components.ServeStreamlit):
         return [int(x2),int(y2)]
 
     def render(self):
-        st.title("Morphology Assistant")
+        st.title("XtraX")
         uploaded_file = st.file_uploader("Choose a file")
         if uploaded_file:
             alt = uploaded_file.name.split("_")[3:5]
