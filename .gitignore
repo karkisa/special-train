@@ -7,3 +7,6 @@ __pycache__/
 keypoint_best.pt
 best_7pts.pt
 test/
+annotations/
+models/
+annotation_exp.ipynb

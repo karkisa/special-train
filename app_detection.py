@@ -5,6 +5,8 @@ import lightning as L
 import streamlit as st
 import pandas as pd
 import cv2, torch, warnings,os
+from lightning import app       
+
 warnings.filterwarnings('ignore')
 
 class StreamlitApp(L.app.components.ServeStreamlit):
@@ -89,15 +91,22 @@ class StreamlitApp(L.app.components.ServeStreamlit):
             
             for vid_folder_path in list_folders:
                 st.text(f'Analysing {vid_folder_path.split("/")[-1]} folder')
-                list_p = os.listdir(vid_folder_path)
+                list_p=[]
+                try:
+
+                    list_p = os.listdir(vid_folder_path)
+
+                except:
+                    list_p=[]
+                
                 list_p = [os.path.join(vid_folder_path,p) for p in list_p]
                 print(list_p)
                 for vid_path in list_p:
                     df = self.get_df(vid_path)
-                    st.dataframe(df)
+                    # st.dataframe(df)
                     if len(df):
                         self.read_vid_and_save_in_folder(vid_path,df,save_folder_path)
 
                 st.success(f'{vid_folder_path.split("/")[-1]} folder analysed')
 
-app = L.LightningApp(StreamlitApp())
+app = L.app.LightningApp(StreamlitApp())

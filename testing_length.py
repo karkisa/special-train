@@ -8,6 +8,8 @@ from scipy.special import comb
 from segment_anything import  SamAutomaticMaskGenerator,sam_model_registry, SamPredictor
 import collections,math
 import pdb
+from ultralytics import YOLO
+
 def get_centers(df):
     conf = [-1]*6
     fins = []
@@ -86,6 +88,7 @@ def P(t, X):
 def get_image(image_path):
     image = Image.open(image_path).convert('RGB')
     image = np.array(image)
+    
     return image
 
 def get_pixel_length(image,centers):
@@ -97,6 +100,27 @@ def get_pixel_length(image,centers):
     curve = get_bezire_curve(centers)
 
     return curve,image.shape[1]
+
+def create_binary_mask(polygon, width, height):
+    
+    # Create an empty mask
+    mask = np.zeros((height, width), dtype=np.uint8)
+    
+    # Fill the polygon in the mask with white (255)
+    cv2.fillPoly(mask, [np.array(polygon, dtype=np.int32)], 255)
+    
+    return mask
+
+def get_mask_yolov8(model,image_path):
+     results = model(image_path)
+     height,width,channels =get_image(image_path).shape
+     polygon = results[0].masks.xy[0]  # Replace with actual values
+    #  width = 3840  # Replace with actual image width
+    #  height = 2160  # Replace with actual image height
+
+     mask = create_binary_mask(polygon, width, height)
+     
+     return mask
 
 def get_roi(mask_predictor,image,centers,mask_labels):
           mask_predictor.set_image(image)
@@ -131,8 +155,9 @@ def remove_mask_quads(curve,image,mask):
 
     return pixels, (end-start)
 
+
 def save_img(name,image,mask,centers,base_save_folder):
-     
+    # pdb.set_trace()
     mask = cv2.threshold(mask, 0, 255, cv2.THRESH_BINARY)[1]
     image[mask==255] = (0,255,0)
     for point in centers: 
@@ -175,7 +200,7 @@ def get_point_k_dist(vx,vy,pt,d):
 
     return [int(x2),int(y2)]
 
-def analyse_csv(df,base_folder,sensor_width,model,mask_predictor,save_folder):
+def analyse_csv(df,base_folder,sensor_width,key_point_model,yolo_seg_model,mask_predictor,save_folder):
      df["model_length_meters"] = 0
      df["model_length_pixel"] = 0
      df["pixels_roi"] = 0
@@ -186,11 +211,11 @@ def analyse_csv(df,base_folder,sensor_width,model,mask_predictor,save_folder):
           if not os.path.exists(image_path):
                continue
           image = get_image(image_path)
-
+          mask = get_mask_yolov8(yolo_seg_model,image_path)
           altitude = row['Baro_Alt']
           focal_length = row["Focal_Length"]
 
-          yolo_keypoints_results = model(image, size = 640)
+          yolo_keypoints_results = key_point_model(image)
           results_df = yolo_keypoints_results.pandas().xyxy[0]
           centers,mask_labels,mark_idx= get_centers(results_df)
           
@@ -213,7 +238,8 @@ def analyse_csv(df,base_folder,sensor_width,model,mask_predictor,save_folder):
                
             length_meters = (altitude/focal_length)*(sensor_width/img_width)*total_arc_length_pixels
 
-            mask = get_roi(mask_predictor,image,centers,mask_labels)
+            # mask = get_roi(mask_predictor,image,centers,mask_labels)
+            
             pixels,percent_roi = remove_mask_quads(curve,image,mask)
             save_img(row["image"],image,mask,centers,save_folder)
 
@@ -227,12 +253,15 @@ def analyse_csv(df,base_folder,sensor_width,model,mask_predictor,save_folder):
      return df
 
 if __name__=="__main__":
-    csv_path = 'test/GRANITE_230526_to_230724/snapshots/manual_measurements.csv'
-    base_folder = 'test/GRANITE_230526_to_230724/snapshots'
-    save_folder = 'results/GRANITE_230526_to_230724'
+    csv_path = '/Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/Late_Season_to_measure/late_season_2022.csv'
+    base_folder = '/Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/Late_Season_to_measure'
+    save_folder = '/Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/results/yolo_bbox_yolo_seg_results/Late_Season_to_measure'
+    # keypoint_yolov8_path = '/Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/models/detect_keypts/best.pt'
     sensor_width = 17.3
     keypoint_yolo = torch.hub.load('ultralytics/yolov5', 'custom', path='best_7pts.pt')
+    # keypoint_yolo = YOLO(keypoint_yolov8_path)
     name = 'results.csv'
+    seg_model_wt_paths = '/Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/models/segmentation/yolov8l-seg-ko.pt'
     DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     MODEL_TYPE = "vit_h"
     CHECKPOINT_PATH = 'sam_vit_h_4b8939.pth'
@@ -241,6 +270,9 @@ if __name__=="__main__":
     sam.to(device=DEVICE)
     mask_predictor = SamPredictor(sam)
 
+    # yolov8 segment model
+    yolo_seg_model = YOLO(seg_model_wt_paths)
+
     df = pd.read_csv(csv_path)
-    df = analyse_csv(df,base_folder,sensor_width,keypoint_yolo,mask_predictor,save_folder)
+    df = analyse_csv(df,base_folder,sensor_width,keypoint_yolo,yolo_seg_model,mask_predictor,save_folder)
     df.to_csv(os.path.join(save_folder,name),index = False)
