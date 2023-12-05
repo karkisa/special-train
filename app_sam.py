@@ -13,7 +13,7 @@ from PIL import Image
 # from segmentation_models_pytorch import Unet
 from segment_anything import  SamAutomaticMaskGenerator,sam_model_registry, SamPredictor
 import torch
-# import cv2
+import cv2
 # from skimage.morphology import skeletonize
 # from sklearn.metrics.pairwise import euclidean_distances
 # from streamlit_drawable_canvas import st_canvas
