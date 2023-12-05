@@ -5,11 +5,11 @@ import lightning as L
 import streamlit as st
 import pandas as pd
 import cv2, torch, warnings,os
-from lightning import app       
+import lightning_app as app       
 
 warnings.filterwarnings('ignore')
 
-class StreamlitApp(L.app.components.ServeStreamlit):
+class StreamlitApp(app.components.ServeStreamlit):
     def build_model(self):
         model = torch.hub.load('ultralytics/yolov5', 'custom', path='best.pt')
 
@@ -109,4 +109,4 @@ class StreamlitApp(L.app.components.ServeStreamlit):
 
                 st.success(f'{vid_folder_path.split("/")[-1]} folder analysed')
 
-app = L.app.LightningApp(StreamlitApp())
+app = app.LightningApp(StreamlitApp())

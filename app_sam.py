@@ -1,6 +1,7 @@
 # app.py
 # !pip install streamlit omegaconf scipy
 # !pip install torch
+from lightning_app import LightningApp
 import lightning as L
 import torch, math
 from io import BytesIO
@@ -12,15 +13,15 @@ from PIL import Image
 # from segmentation_models_pytorch import Unet
 from segment_anything import  SamAutomaticMaskGenerator,sam_model_registry, SamPredictor
 import torch
-import cv2
-from skimage.morphology import skeletonize
-from sklearn.metrics.pairwise import euclidean_distances
+# import cv2
+# from skimage.morphology import skeletonize
+# from sklearn.metrics.pairwise import euclidean_distances
 # from streamlit_drawable_canvas import st_canvas
-import pandas as pd
+# import pandas as pd
 from scipy.special import comb
 import bezier, collections
-warnings.filterwarnings('ignore')
-from lightning import app       
+# warnings.filterwarnings('ignore')
+import lightning_app as  app       
 
 class StreamlitApp(app.components.ServeStreamlit):
     def show_anns(self, anns):
@@ -353,4 +354,4 @@ class StreamlitApp(app.components.ServeStreamlit):
             pixels,percent_roi = self.remove_mask_quads(curve,image,mask)
             st.text(f"BAI is {pixels/((arc_length_pixels*percent_roi)**2)}")
 
-app = app.LightningApp(StreamlitApp())
+app = LightningApp(StreamlitApp())
