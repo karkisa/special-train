@@ -38,6 +38,7 @@ class StreamlitApp(app.components.ServeStreamlit):
 
         os.system("rm output.txt")
         return df
+    
     def get_name_extention(self,path):
         path=path.split('/')
         s=path[-1]
@@ -64,7 +65,7 @@ class StreamlitApp(app.components.ServeStreamlit):
             if count<ln:
 
                 alt = ("_").join(str(df["H"][count]).split("."))
-            name = str(minutes)+'_'+str(seconds)+'_0_'+alt+'_'+ extention +'.png'
+            name =extention +'_0_'+0+ str(minutes)+'_'+str(seconds)+'_0_'+alt +'.png'
 
             if ret :
                 yolo_results = self.model(frame,size = 640)

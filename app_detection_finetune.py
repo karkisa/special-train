@@ -6,8 +6,8 @@ import streamlit as st
 import pandas as pd
 import cv2, torch, warnings,os
 warnings.filterwarnings('ignore')
-
-class StreamlitApp(L.app.components.ServeStreamlit):
+import  lightning_app as app
+class StreamlitApp(app.components.ServeStreamlit):
     def build_model(self):
         model = torch.hub.load('ultralytics/yolov5', 'custom', path='best.pt')
         return model
@@ -116,4 +116,4 @@ class StreamlitApp(L.app.components.ServeStreamlit):
                 self.read_vid_and_save_in_folder(vid_path,start, end ,float(thresh),int(frame_rate), save_folder_path,display)
 
 
-app = L.LightningApp(StreamlitApp())
+app = app.LightningApp(StreamlitApp())

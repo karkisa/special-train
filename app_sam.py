@@ -300,6 +300,12 @@ class StreamlitApp(app.components.ServeStreamlit):
         pt4 = self.get_point_k_dist(vy,-vx,ext_pt,box_d)
 
         # cv2.circle(image,[int(x1),int(y1)],1, (255,0,0),10)
+        # cv2.line(image, pt1, pt2, (255,0,0), 5) 
+        # cv2.line(image, pt2, pt3, (255,0,0), 5) 
+        # cv2.line(image, pt3, pt4, (255,0,0), 5) 
+        # cv2.line(image, pt4, pt1, (255,0,0), 5) 
+        
+
         # cv2.circle(image,pt1,1, (255,0,0),10)
         # cv2.circle(image,pt2,1, (255,255,0),10)
         # cv2.circle(image,pt3,1, (0,0,255),10)
