@@ -65,7 +65,7 @@ class StreamlitApp(app.components.ServeStreamlit):
             if count<ln:
 
                 alt = ("_").join(str(df["H"][count]).split("."))
-            name =extention +'_0_'+0+ str(minutes)+'_'+str(seconds)+'_0_'+alt +'.png'
+            name =extention ++"_00_"+ str(minutes)+'_'+str(seconds)+'_0_'+alt +'.png'
 
             if ret :
                 yolo_results = self.model(frame,size = 640)
@@ -83,7 +83,7 @@ class StreamlitApp(app.components.ServeStreamlit):
         st.subheader("Enter location of the folder that contains videos")
         vid_folders_path = st.text_input("select sorce folder")
         st.subheader("Enter location of folder where you want to save frames with whales")
-        save_folder_path =  st.text_input("select destination folder","save_detections")
+        save_folder_path =  st.text_input("select destination folder")
         st.echo(save_folder_path)
         if st.button('start'):
             list_folders = os.listdir(vid_folders_path)
