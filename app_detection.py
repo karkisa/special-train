@@ -65,7 +65,7 @@ class StreamlitApp(app.components.ServeStreamlit):
             if count<ln:
 
                 alt = ("_").join(str(df["H"][count]).split("."))
-            name =extention ++"_00_"+ str(minutes)+'_'+str(seconds)+'_0_'+alt +'.png'
+            name =extention +"_00_"+ str(minutes)+'_'+str(seconds)+'_0_'+alt +'.png'
 
             if ret :
                 yolo_results = self.model(frame,size = 640)

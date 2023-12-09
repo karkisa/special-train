@@ -3,8 +3,8 @@
 # !pip install torch
 import lightning as L
 import torch
-from io import BytesIO
-from functools import partial
+# from io import BytesIO
+# from functools import partial
 from scipy.io.wavfile import write
 import streamlit as st
 import warnings
