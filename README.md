@@ -52,7 +52,7 @@ VideoName_HH_MM_SS_HM_HC.png
 
 “VideoName” is the name of the video from which it was selected. HH_MM_SS is the time stamp where HH refers to hours, MM refers to minutes and SS refers to seconds. HM_HC captures altitude information. For example, if the height is. 45.6 then HM is 45 and HC is 6.  
 
-Follow this video tutorial for DeteX application use
+Follow this video [tutorial](https://kaltura.oregonstate.edu/media/1_ssnzylci) for DeteX and XtraX application use
 
 ### launch XtraX
 
