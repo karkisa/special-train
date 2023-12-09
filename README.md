@@ -35,7 +35,11 @@ conda activate Whale_Morph
 
 ### download data
 [Yolov5 model weights needed for Detex](https://oregonstate.box.com/s/4bl2pr0xuygbai8gu97hajjs0ihprc7w)
+
+
 [SAM model weights neede for extrax](https://oregonstate.box.com/s/oltsl30mxvmqvsb7xvpzssxyu3y775pe)
+
+
 [YOLOv5 model weights needed for XtraX](https://oregonstate.box.com/s/20r8c3peu6drogsrqt3sq2cmfl5f2s3t)
 ### launch DeteX
 
