@@ -13,6 +13,13 @@ Lets create an environment "Wahel_Morph" (You are free to use any other name for
 conda create --name Whale_Morph python=3.8
 
 ```
+
+make the repo folder the base folder in terminal
+
+```
+cd special-train
+```
+
 Use the environment.yaml file to get all teh packages need for the application
 
 ```
@@ -25,12 +32,11 @@ conda env update --name Whale_Morph --file environment.yml
 conda activate Whale_Morph
 ```
 
-make the repo folder the base folder in terminal
 
-```
-cd special-train
-```
-
+### download data
+[Yolov5 model weights needed for Detex](https://oregonstate.box.com/s/4bl2pr0xuygbai8gu97hajjs0ihprc7w)
+[SAM model weights neede for extrax](https://oregonstate.box.com/s/oltsl30mxvmqvsb7xvpzssxyu3y775pe)
+[YOLOv5 model weights needed for XtraX](https://oregonstate.box.com/s/20r8c3peu6drogsrqt3sq2cmfl5f2s3t)
 ### launch DeteX
 
 ```
