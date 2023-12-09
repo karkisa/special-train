@@ -10,7 +10,7 @@ git clone https://github.com/karkisa/special-train.git
 Lets create an environment "Wahel_Morph" (You are free to use any other name for your environment)
 
 ```
-conda create --name Whale_Morph pytohn=3.8
+conda create --name Whale_Morph python=3.8
 
 ```
 Use the environment.yaml file to get all teh packages need for the application
