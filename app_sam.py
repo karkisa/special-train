@@ -214,7 +214,7 @@ class StreamlitApp(app.components.ServeStreamlit):
         launch_hieght = eval(st.text_input("Set launch altitude in meters", 0))
         altitude = eval(st.text_input("Set altitude in meters", alt+launch_hieght))
         img_width = image.shape[1]
-        st.text(f"found image width ot be : {img_width}")
+        st.text(f"found image width to be : {img_width}")
         length_meters = (altitude/focal_length)*(sensor_width/img_width)*arc_length_pixels
         st.text(f"The Length in meters is {length_meters}")
         

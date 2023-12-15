@@ -11,3 +11,4 @@ annotations/
 models/
 annotation_exp.ipynb
 yolov8l-seg-ko.pt
+.storage/
