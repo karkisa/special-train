@@ -299,11 +299,15 @@ def your_streamlit_app(lightning_app_state):
 
     st.subheader("Folder where you want to save the results")
     st.text(results_folder_path)
-    sensor_width =st.text_input('sensor_width','17.3')
-    focal_length = st.text_input('focal_length','25')
-    launch_height = st.text_input('launch_height','1.7')
-    start  = st.text_input("start",'0.2')
-    end = st.text_input('end','0.7')
+
+    st.text("Enter camera, launch height, and body condition information. Note, that image width (pixels) and barometric altitude (m) is automatically extracted from the input frame.")
+    sensor_width =st.text_input('sensor_width (mm)','17.3')
+    focal_length = st.text_input('focal_length (mm)','25')
+    launch_height = st.text_input('launch_height (mm)','1.7')
+    st.text('Select the Head-Tail Range, the region of the body used to calculate body condition. For example, gray whales have a Head-Trail Range between widths 20-70 percent of total length, so start width = 0.20 and end width = 0.70.')
+
+    start  = st.text_input("start width",'0.2')
+    end = st.text_input('end width','0.7')
 
     sensor_width,focal_length,launch_height ,start,end= float(sensor_width),float(focal_length),float(launch_height),float(start),float(end)
 

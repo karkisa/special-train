@@ -1,7 +1,7 @@
 # Special-Train
 ## Deployment using lightning for getting frames and segmentation.
 
-### Cone repository
+### Clone repository
 
 ```
 git clone https://github.com/karkisa/special-train.git
@@ -21,6 +21,7 @@ cd special-train
 ```
 
 Use the environment.yaml file to get all the packages need for the application
+These application may have new features and therefore may have additional dependencies. Inorder to run application smoothly update the environemt in which you will be running this application using the folowing command
 
 ```
 conda env update --name Whale_Morph --file environment.yml
@@ -33,6 +34,9 @@ conda activate Whale_Morph
 ```
 
 ### download data
+
+Before you run thses applications you need to dowload below mentioned files and place them in the repository folder. 
+
 [Yolov5 model weights needed for DeteX](https://oregonstate.box.com/s/4bl2pr0xuygbai8gu97hajjs0ihprc7w)
 
 [YOLOv5 model weights needed for keypoint identification in XtraX](https://oregonstate.box.com/s/20r8c3peu6drogsrqt3sq2cmfl5f2s3t)
@@ -54,11 +58,17 @@ lightning run app DeteX.py
 The files saved by DeteX follows the format: 
 VideoName_000_HH_MM_SS_000_HM_HC.png 
 
-"_000_" is a saperator that helps the appliation identify different information from the file name.
+"_000_" is a separator that helps the application identify different information from the file name.
 
 “VideoName” is the name of the video from which it was selected. HH_MM_SS is the time stamp where HH refers to hours, MM refers to minutes and SS refers to seconds. HM_HC captures altitude information. For example, if the height is. 45.6 then HM is 45 and HC is 6.  
 
 The applcation lets you select folders which you want to analyse and folder where you want to save the results. For each video the application creates new folder named as per the video name where it saves frames from that video.
+
+For more user control and analysing single video use the following command
+```
+lightning run app app_detection_finetune.py
+```
+In this application you need to manually add the path to the video and folder.
 
 ### launch XtraX
 
@@ -70,7 +80,7 @@ lightning run app XtraX.py
 ```
 
 The results folder contains a csv "results.csv"
-The folloing is the discription of the colums that the csv contains
+The folloing is the discription of the columns that the csv contains
 
 'image'                : image path
 'model_length_meters'  : total length of whale in meters  
