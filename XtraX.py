@@ -246,6 +246,7 @@ def analyse_csv(df,base_folder,sensor_width,key_point_model,yolo_seg_model,sam_m
           df.loc[idx,'polygon_full'] = [polygon]
           df.loc[idx,'total_whale_area']=total_whale_area
           df.loc[idx,'altitude'] = altitude  
+          df.loc[idx,'bai'] = (pixels/((arc_length_pixels*percent_roi)**2))*100
           
      return df
 

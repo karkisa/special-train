@@ -1,0 +1,27 @@
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/Users/sagar/miniconda3/envs/Whale_Morph/lib/python3.8/threading.py", line 932, in _bootstrap_inner
+    self.run()
+  File "/Users/sagar/miniconda3/envs/Whale_Morph/lib/python3.8/threading.py", line 870, in run
+    self._target(*self._args, **self._kwargs)
+  File "/Users/sagar/miniconda3/envs/Whale_Morph/lib/python3.8/site-packages/lightning_app/utilities/app_helpers.py", line 239, in target_fn
+    asyncio.run(update_fn())
+  File "/Users/sagar/miniconda3/envs/Whale_Morph/lib/python3.8/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "/Users/sagar/miniconda3/envs/Whale_Morph/lib/python3.8/asyncio/base_events.py", line 616, in run_until_complete
+    return future.result()
+  File "/Users/sagar/miniconda3/envs/Whale_Morph/lib/python3.8/site-packages/lightning_app/utilities/app_helpers.py", line 215, in update_fn
+    sessions = list(runtime_instance._session_info_by_id.values())
+AttributeError: 'Runtime' object has no attribute '_session_info_by_id'
+Using cache found in /Users/sagar/.cache/torch/hub/ultralytics_yolov5_master
+YOLOv5 🚀 2023-5-3 Python-3.8.18 torch-2.1.1 CPU
+
+Fusing layers... 
+Model summary: 212 layers, 20877180 parameters, 0 gradients, 47.9 GFLOPs
+Adding AutoShape... 
+Using cache found in /Users/sagar/.cache/torch/hub/ultralytics_yolov5_master
+YOLOv5 🚀 2023-5-3 Python-3.8.18 torch-2.1.1 CPU
+
+Fusing layers... 
+Model summary: 212 layers, 20877180 parameters, 0 gradients, 47.9 GFLOPs
+Adding AutoShape... 

@@ -65,7 +65,7 @@ class StreamlitApp(app.components.ServeStreamlit):
             minutes , seconds = int (t_msec[0]//60), int(t_msec[0]%60)
             alt = str((self.df["H"][t_msec[0]]+self.df["H"][t_msec[0]+1])/2)
             alt = ("_").join(alt.split("."))
-            name = str(minutes)+'_'+str(seconds)+'_'+t_msec[1]+"_"+alt+"_"+ extention +'.png'
+            name =extention+'_000_00_'+ str(minutes)+'_'+str(seconds)+'_'+t_msec[1]+"_000_"+alt+'.png'
             if ret :
                 if display:
                     st.image(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))

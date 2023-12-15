@@ -7,7 +7,7 @@
 git clone https://github.com/karkisa/special-train.git
 ```
 ### Create Environment
-Let's create an environment "Whael_Morph" (You are free to use any other name for your environment)
+Let's create an environment "Whale_Morph" (You are free to use any other name for your environment)
 
 ```
 conda create --name Whale_Morph python=3.8
@@ -20,7 +20,7 @@ make the repo folder the base folder in terminal
 cd special-train
 ```
 
-Use the environment.yaml file to get all teh packages need for the application
+Use the environment.yaml file to get all the packages need for the application
 
 ```
 conda env update --name Whale_Morph --file environment.yml
@@ -35,16 +35,15 @@ conda activate Whale_Morph
 ### download data
 [Yolov5 model weights needed for DeteX](https://oregonstate.box.com/s/4bl2pr0xuygbai8gu97hajjs0ihprc7w)
 
+[YOLOv5 model weights needed for keypoint identification in XtraX](https://oregonstate.box.com/s/20r8c3peu6drogsrqt3sq2cmfl5f2s3t)
 
-[SAM model weights neede for XtraX](https://oregonstate.box.com/s/oltsl30mxvmqvsb7xvpzssxyu3y775pe)
+[YOLOv8 segmentation model needed for XtraX](https://oregonstate.box.com/s/fedsup6yhfoi7epx7gucgfexl71amqp7)
 
-
-[YOLOv5 model weights needed for XtraX](https://oregonstate.box.com/s/20r8c3peu6drogsrqt3sq2cmfl5f2s3t)
-
+[SAM model weights needed for XtraX](https://oregonstate.box.com/s/oltsl30mxvmqvsb7xvpzssxyu3y775pe)
 
 ## Quick tutorial
 
-Follow this video [tutorial](https://kaltura.oregonstate.edu/media/1_ssnzylci) for DeteX and XtraX application use
+Follow this video [tutorial](https://media.oregonstate.edu/media/1_01o1wp56) for DeteX and XtraX application use
 
 ### launch DeteX
 
@@ -62,10 +61,7 @@ VideoName_000_HH_MM_SS_000_HM_HC.png
 The applcation lets you select folders which you want to analyse and folder where you want to save the results. For each video the application creates new folder named as per the video name where it saves frames from that video.
 
 ### launch XtraX
-To run XtraX on just one image and have more control use "app_sam.py" as below
-```
-lightning run app app_sam.py
-```
+
 
 To perform extraction on folder containing selected frames use "XtraX.py"
 
@@ -89,3 +85,13 @@ The folloing is the discription of the colums that the csv contains
 'focal_length'         : Focal length of the camera used       
 'altitude'             : Altitude of the drone in meters. (This is extracted from the name of the file. It also adds launch height to the value from name. If the name does not have altitude information then it defaults to 50 m)
 'model_50_length_pixel': 50% of total length of whale in pixels.
+
+To run XtraX on just one image and have more control use "app_sam.py" as below
+```
+lightning run app app_sam.py
+```
+
+##How to close the applications
+If you are using mac then just use "control+C" in terminal for windows "windows+C" in terminal
+
+Feel free to reachout to me at karkisa@oregonstate.edu

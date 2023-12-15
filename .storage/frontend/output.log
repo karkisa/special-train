@@ -1,0 +1,274 @@
+
+  You can now view your Streamlit app in your browser.
+
+  URL: http://localhost:49428/root.lit_streamlit
+
+  For better performance, install the Watchdog module:
+
+  $ xcode-select --install
+  $ pip install watchdog
+            
+[31m[1mrequirements:[0m /Users/sagar/.cache/torch/hub/requirements.txt not found, check failed.
+[31m[1mrequirements:[0m /Users/sagar/.cache/torch/hub/requirements.txt not found, check failed.
+[[2910 1004]
+ [2668 1004]
+ [2456 1016]
+ [2087 1020]
+ [1642 1084]
+ [1231 1152]]
+
+image 1/1 /Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/GRANITE_230526_to_230724/snapshots/230603_I2F_S2_U2_DJI0004_00_03_27_vlc00002.png: 576x1024 1 whale, 852.3ms
+Speed: 4.6ms preprocess, 852.3ms inference, 2.0ms postprocess per image at shape (1, 3, 576, 1024)
+[[ 930  815]
+ [1234  841]
+ [1504  869]
+ [1922  895]
+ [2333  891]
+ [2800  909]]
+
+image 1/1 /Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/GRANITE_230526_to_230724/snapshots/230608_I2F_S2_U2_DJI0004_00_02_32_vlc00003.png: 576x1024 1 whale, 860.8ms
+Speed: 3.0ms preprocess, 860.8ms inference, 1.6ms postprocess per image at shape (1, 3, 576, 1024)
+[[3102 1023]
+ [2893 1032]
+ [2627 1027]
+ [2116  980]
+ [1708  946]
+ [1306  896]]
+
+image 1/1 /Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/GRANITE_230526_to_230724/snapshots/230712_I2F_S2_U2_DJI0005_00_04_57_vlc00004.png: 576x1024 1 whale, 842.2ms
+Speed: 2.7ms preprocess, 842.2ms inference, 1.6ms postprocess per image at shape (1, 3, 576, 1024)
+[[1033  969]
+ [1214  982]
+ [1346 1012]
+ [1923  994]
+ [2162  978]
+ [2440  978]]
+
+image 1/1 /Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/GRANITE_230526_to_230724/snapshots/230720_I2F_S1_U1_DJI0002_00_03_43_vlc00002.png: 576x1024 1 whale, 872.2ms
+Speed: 3.0ms preprocess, 872.2ms inference, 1.7ms postprocess per image at shape (1, 3, 576, 1024)
+[[ 940 1190]
+ [1105 1192]
+ [1244 1176]
+ [1574 1121]
+ [1831 1079]
+ [2097 1065]]
+
+image 1/1 /Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/GRANITE_230526_to_230724/snapshots/230624_I2F_S1_U2_DJI0006_00_00_38_vlc00003.png: 576x1024 1 whale, 866.0ms
+Speed: 3.0ms preprocess, 866.0ms inference, 1.7ms postprocess per image at shape (1, 3, 576, 1024)
+[[ 674 1585]
+ [ 957 1613]
+ [1112 1620]
+ [1476 1668]
+ [2235 1634]
+ [2629 1616]]
+
+image 1/1 /Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/GRANITE_230526_to_230724/snapshots/230712_I2F_S9_U4_DJI0011_00_04_04_vlc00005.png: 576x1024 1 whale, 879.6ms
+Speed: 2.8ms preprocess, 879.6ms inference, 1.6ms postprocess per image at shape (1, 3, 576, 1024)
+[[1139 1039]
+ [1368 1041]
+ [1536 1063]
+ [1897 1061]
+ [2273 1048]
+ [2638 1043]]
+
+image 1/1 /Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/GRANITE_230526_to_230724/snapshots/230627_I2F_S5_U2_DJI0005_00_02_42_vlc00004.png: 576x1024 1 whale, 919.7ms
+Speed: 3.0ms preprocess, 919.7ms inference, 2.0ms postprocess per image at shape (1, 3, 576, 1024)
+[[ 510 1218]
+ [ 761 1242]
+ [ 945 1270]
+ [1336 1294]
+ [1768 1346]
+ [2194 1402]]
+
+image 1/1 /Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/GRANITE_230526_to_230724/snapshots/230624_I2F_S4_U6_DJI0008_00_01_17_vlc00002.png: 576x1024 1 whale, 912.1ms
+Speed: 4.4ms preprocess, 912.1ms inference, 1.6ms postprocess per image at shape (1, 3, 576, 1024)
+[[1017 1185]
+ [1230 1096]
+ [1677  998]
+ [2127  960]
+ [2635 1015]
+ [3102 1037]]
+
+image 1/1 /Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/GRANITE_230526_to_230724/snapshots/230608_I2F_S1_U1_DJI0001_00_05_10_vlc00017.png: 576x1024 1 whale, 851.0ms
+Speed: 2.6ms preprocess, 851.0ms inference, 1.6ms postprocess per image at shape (1, 3, 576, 1024)
+[[2940 1096]
+ [2708 1139]
+ [2425 1193]
+ [1963 1266]
+ [1559 1298]
+ [1165 1328]]
+
+image 1/1 /Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/GRANITE_230526_to_230724/snapshots/230627_I2F_S4_U1_DJI0001_00_05_08_vlc00015.png: 576x1024 1 whale, 856.4ms
+Speed: 2.6ms preprocess, 856.4ms inference, 1.9ms postprocess per image at shape (1, 3, 576, 1024)
+[[1034 1238]
+ [1249 1193]
+ [1472 1185]
+ [1816 1165]
+ [2184 1139]
+ [2520 1125]]
+
+image 1/1 /Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/GRANITE_230526_to_230724/snapshots/230526_I2F_S5_U2_DJI0004_00_03_43_vlc00005.png: 576x1024 1 whale, 852.7ms
+Speed: 2.7ms preprocess, 852.7ms inference, 1.6ms postprocess per image at shape (1, 3, 576, 1024)
+[[ 874 1005]
+ [1175 1011]
+ [1442 1026]
+ [2085 1056]
+ [2505 1084]
+ [2911 1092]]
+
+image 1/1 /Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/GRANITE_230526_to_230724/snapshots/230717_I2F_S1_U1_DJI0001_00_04_15_vlc00015.png: 576x1024 1 whale, 834.9ms
+Speed: 2.8ms preprocess, 834.9ms inference, 1.6ms postprocess per image at shape (1, 3, 576, 1024)
+[[2698 1217]
+ [2492 1261]
+ [2271 1296]
+ [1909 1350]
+ [1604  962]
+ [1085 1406]]
+
+image 1/1 /Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/GRANITE_230526_to_230724/snapshots/230624_I2F_S1_U3_DJI0007_00_04_08_vlc00016.png: 576x1024 2 whales, 842.5ms
+Speed: 2.8ms preprocess, 842.5ms inference, 2.0ms postprocess per image at shape (1, 3, 576, 1024)
+[[1259 1389]
+ [1502 1366]
+ [1671 1370]
+ [2164 1395]
+ [2509 1448]
+ [2839 1503]]
+
+image 1/1 /Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/GRANITE_230526_to_230724/snapshots/230712_I2F_S10_U5_DJI0001_00_02_19_vlc00002.png: 576x1024 1 whale, 860.3ms
+Speed: 2.8ms preprocess, 860.3ms inference, 1.6ms postprocess per image at shape (1, 3, 576, 1024)
+[[2733 1233]
+ [2538 1244]
+ [2357 1263]
+ [2006 1256]
+ [1735 1241]
+ [1436 1213]]
+
+image 1/1 /Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/GRANITE_230526_to_230724/snapshots/230616_I2F_S1_U1_DJI0001_00_03_02_vlc00008.png: 576x1024 1 whale, 866.3ms
+Speed: 2.7ms preprocess, 866.3ms inference, 1.6ms postprocess per image at shape (1, 3, 576, 1024)
+[[2502 1244]
+ [2313 1229]
+ [2184 1227]
+ [1849 1207]
+ [1517 1198]
+ [1252 1181]]
+
+image 1/1 /Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/GRANITE_230526_to_230724/snapshots/230708_I2F_S4_U2_DJI0005_00_00_06_vlc00002.png: 576x1024 1 whale, 838.5ms
+Speed: 2.7ms preprocess, 838.5ms inference, 1.6ms postprocess per image at shape (1, 3, 576, 1024)
+[[2875 1286]
+ [2670 1302]
+ [2459 1312]
+ [2031 1330]
+ [1572 1342]
+ [1209 1341]]
+
+image 1/1 /Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/GRANITE_230526_to_230724/snapshots/230724_I2F_S1_U1_DJI0002_00_03_41_vlc00001.png: 576x1024 1 whale, 840.6ms
+Speed: 2.9ms preprocess, 840.6ms inference, 1.6ms postprocess per image at shape (1, 3, 576, 1024)
+[[2819 1049]
+ [2609 1086]
+ [2438 1114]
+ [1949 1158]
+ [1589 1207]
+ [1172 1258]]
+
+image 1/1 /Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/GRANITE_230526_to_230724/snapshots/230720_I2F_S4_U4_DJI0011_00_00_24_vlc00003.png: 576x1024 1 whale, 860.1ms
+Speed: 2.6ms preprocess, 860.1ms inference, 1.6ms postprocess per image at shape (1, 3, 576, 1024)
+[[1004 1097]
+ [1262 1097]
+ [1423 1113]
+ [1839 1101]
+ [2241 1090]
+ [2559 1087]]
+
+image 1/1 /Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/GRANITE_230526_to_230724/snapshots/230616_I2F_S2_U2_DJI0004_00_02_21_vlc00001.png: 576x1024 1 whale, 859.3ms
+Speed: 2.9ms preprocess, 859.3ms inference, 1.8ms postprocess per image at shape (1, 3, 576, 1024)
+[[ 500 1022]
+ [ 732 1139]
+ [ 917 1210]
+ [1370 1347]
+ [1874 1454]
+ [2260 1514]]
+
+image 1/1 /Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/GRANITE_230526_to_230724/snapshots/230724_I2F_S1_U1_DJI0001_00_02_02_vlc00002.png: 576x1024 1 whale, 879.2ms
+Speed: 2.8ms preprocess, 879.2ms inference, 1.6ms postprocess per image at shape (1, 3, 576, 1024)
+[[1074 1003]
+ [1284  991]
+ [1460  982]
+ [1801  952]
+ [2112  924]
+ [2485  901]]
+
+image 1/1 /Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/GRANITE_230526_to_230724/snapshots/230708_I2F_S4_U1_DJI0001_00_04_44_vlc00006.png: 576x1024 1 whale, 859.2ms
+Speed: 2.8ms preprocess, 859.2ms inference, 1.9ms postprocess per image at shape (1, 3, 576, 1024)
+[[1321 1183]
+ [1590 1186]
+ [1800 1200]
+ [2208 1202]
+ [2638 1206]
+ [2997 1197]]
+
+image 1/1 /Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/GRANITE_230526_to_230724/snapshots/230709_I2F_S6_U4_DJI0011_00_02_39_vlc00001.png: 576x1024 1 whale, 860.1ms
+Speed: 2.7ms preprocess, 860.1ms inference, 1.6ms postprocess per image at shape (1, 3, 576, 1024)
+[[2494 1014]
+ [2208 1026]
+ [1989 1052]
+ [1369 1037]
+ [ 941 1021]
+ [ 514 1031]]
+
+image 1/1 /Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/GRANITE_230526_to_230724/snapshots/230717_I2F_S1_U2_DJI0006_00_01_12_vlc00001.png: 576x1024 1 whale, 967.3ms
+Speed: 2.9ms preprocess, 967.3ms inference, 2.2ms postprocess per image at shape (1, 3, 576, 1024)
+[[2456 1124]
+ [2279 1177]
+ [2156 1206]
+ [1558  691]
+ [1304 1338]
+ [ 969 1373]]
+
+image 1/1 /Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/GRANITE_230526_to_230724/snapshots/230624_I2F_S1_U3_DJI0007_00_03_58_vlc00013.png: 576x1024 2 whales, 845.5ms
+Speed: 2.9ms preprocess, 845.5ms inference, 2.0ms postprocess per image at shape (1, 3, 576, 1024)
+[[2842 1118]
+ [2564 1134]
+ [2250 1144]
+ [1722 1121]
+ [1323 1093]
+ [ 906 1090]]
+
+image 1/1 /Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/GRANITE_230526_to_230724/snapshots/230720_I2F_S2_U2_DJI0004_00_02_53_vlc00009.png: 576x1024 1 whale, 835.7ms
+Speed: 2.7ms preprocess, 835.7ms inference, 1.7ms postprocess per image at shape (1, 3, 576, 1024)
+[[2903  927]
+ [2550  992]
+ [2426 1017]
+ [1847 1044]
+ [1428 1044]
+ [ 942 1059]]
+
+image 1/1 /Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/GRANITE_230526_to_230724/snapshots/230627_I2F_S7_U4_DJI0001_00_01_47_vlc00002.png: 576x1024 1 whale, 901.0ms
+Speed: 2.7ms preprocess, 901.0ms inference, 1.7ms postprocess per image at shape (1, 3, 576, 1024)
+[[1539  856]
+ [1745  826]
+ [1965  853]
+ [2237  835]
+ [2714  802]
+ [3011  777]]
+
+image 1/1 /Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/GRANITE_230526_to_230724/snapshots/230609_I2F_S2_U2_DJI0004_00_02_12_vlc00001.png: 576x1024 1 whale, 896.1ms
+Speed: 2.8ms preprocess, 896.1ms inference, 2.2ms postprocess per image at shape (1, 3, 576, 1024)
+[[ 884  718]
+ [1162  762]
+ [1309  795]
+ [1789  858]
+ [2236  921]
+ [2629 1030]]
+
+image 1/1 /Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/GRANITE_230526_to_230724/snapshots/230712_I2F_S1_U1_DJI0002_00_01_39_vlc00002.png: 576x1024 1 whale, 836.6ms
+Speed: 2.9ms preprocess, 836.6ms inference, 1.6ms postprocess per image at shape (1, 3, 576, 1024)
+[[ 248 1176]
+ [ 436 1195]
+ [ 617 1224]
+ [ 916 1249]
+ [1251 1282]
+ [1565 1322]]
+
+image 1/1 /Users/sagar/Desktop/AI_cap/deployment/Lightning_Apps/test/GRANITE_230526_to_230724/snapshots/230526_I2F_S5_U2_DJI0005_00_03_10_vlc00002.png: 576x1024 1 whale, 845.1ms
+Speed: 2.7ms preprocess, 845.1ms inference, 1.6ms postprocess per image at shape (1, 3, 576, 1024)
+  Stopping...

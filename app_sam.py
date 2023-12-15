@@ -358,6 +358,6 @@ class StreamlitApp(app.components.ServeStreamlit):
             length_meters , arc_length_pixels = self.analyse_curve(curve,image,alt)
             mask = self.get_roi(mask_predictor,image,centers,mask_labels)
             pixels,percent_roi = self.remove_mask_quads(curve,image,mask)
-            st.text(f"BAI is {pixels/((arc_length_pixels*percent_roi)**2)}")
+            st.text(f"BAI is {(pixels/((arc_length_pixels*percent_roi)**2)*100)}")
 
 app = LightningApp(StreamlitApp())
