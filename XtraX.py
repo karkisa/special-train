@@ -285,6 +285,7 @@ def load_models(seg_model_wt_paths = 'yolov8l-seg-ko.pt',CHECKPOINT_PATH = 'sam_
 def your_streamlit_app(lightning_app_state):
     st.title("XtraX")
     st.text("To reselect the folders, close the app and restart it")
+    st.text('Give the page a few seconds to load')
     
     frames_folders_path = lightning_app_state.frames_folders_path
     results_folder_path =  lightning_app_state.results_folder_path

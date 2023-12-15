@@ -73,7 +73,8 @@ def read_vid_and_save_in_folder(vid_path,df,parent_folder,model):
   
 def your_streamlit_app(lightning_app_state):
     st.title("DeteX")
-    st.subheader("Reload page to reflect your selection")
+    st.text("To reselect the folders, close the app and restart it")
+    st.text('Give the page a few seconds to load')
     
     vid_folders_path = lightning_app_state.vid_folder
     save_folder_path =  lightning_app_state.save_folder
