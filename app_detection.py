@@ -1,18 +1,24 @@
-# app.py
-# !pip install streamlit omegaconf scipy
-# !pip install torch
 import lightning as L
 import streamlit as st
 import pandas as pd
 import cv2, torch, warnings,os
 import lightning_app as app       
+from glob import glob
+import wx
+import easygui
+from PyQt5.QtWidgets import QApplication, QFileDialog
+import tkinter as tk
+from tkinter import filedialog
+from lightning.app import LightningFlow
+
 
 warnings.filterwarnings('ignore')
 
 class StreamlitApp(app.components.ServeStreamlit):
+
     def build_model(self):
         model = torch.hub.load('ultralytics/yolov5', 'custom', path='best.pt')
-
+        
         return model
     
     def get_df(self,path):
@@ -65,7 +71,7 @@ class StreamlitApp(app.components.ServeStreamlit):
             if count<ln:
 
                 alt = ("_").join(str(df["H"][count]).split("."))
-            name =extention +"_00_"+ str(minutes)+'_'+str(seconds)+'_0_'+alt +'.png'
+            name =extention +"_000_"+ str(minutes)+'_'+str(seconds)+'_000_'+alt +'.png'
 
             if ret :
                 yolo_results = self.model(frame,size = 640)
@@ -77,37 +83,24 @@ class StreamlitApp(app.components.ServeStreamlit):
             else :
                  st.success(f'{extention}.MOV  analysed')
                  break
-    
+            
     def render(self):
         st.title("DeteX")
         st.subheader("Enter location of the folder that contains videos")
-        vid_folders_path = st.text_input("select sorce folder")
+
+        vid_folders_path = st.text_input("select source folder")
         st.subheader("Enter location of folder where you want to save frames with whales")
         save_folder_path =  st.text_input("select destination folder")
         st.echo(save_folder_path)
+
         if st.button('start'):
-            list_folders = os.listdir(vid_folders_path)
-            list_folders =[os.path.join(vid_folders_path,p) for p in list_folders]
+            list_folders = glob(os.path.join(vid_folders_path,"**/*.MOV"),recursive=True)
             
-            
-            for vid_folder_path in list_folders:
-                st.text(f'Analysing {vid_folder_path.split("/")[-1]} folder')
-                list_p=[]
-                try:
+            for vid_path in list_folders:
+                df = self.get_df(vid_path)
+                if len(df):
+                    self.read_vid_and_save_in_folder(vid_path,df,save_folder_path)
 
-                    list_p = os.listdir(vid_folder_path)
-
-                except:
-                    list_p=[]
-                
-                list_p = [os.path.join(vid_folder_path,p) for p in list_p]
-                print(list_p)
-                for vid_path in list_p:
-                    df = self.get_df(vid_path)
-                    # st.dataframe(df)
-                    if len(df):
-                        self.read_vid_and_save_in_folder(vid_path,df,save_folder_path)
-
-                st.success(f'{vid_folder_path.split("/")[-1]} folder analysed')
+                st.success(f'{vid_path.split("/")[-1]} analysed')
 
 app = app.LightningApp(StreamlitApp())
