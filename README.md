@@ -85,9 +85,9 @@ The following is the discription of the columns that the csv contains
 
 * 'image'                : image path
 * 'model_length_meters'  : total length of whale in meters  
-* 'model_length_pixel'   : totla length in pixels
+* 'model_length_pixel'   : total length in pixels
 * 'pixels_roi'           : Surface area of region of interest in pixel squared
-* 'bai'                  : BAI calculated using the prediction
+* 'bai'                  : BAI calculated using the predictions
 * 'centers'              : Python dictionary that contains the (x,y) pixel coordinates with keys representing the points on the whale
 * 'polygon_full'         : Polygon represent the binary mask of whole whale in COCO format 
 * 'total_whale_area'     : Total area of whale in pixels          
