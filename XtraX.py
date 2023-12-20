@@ -201,7 +201,8 @@ def analyse_csv(df,base_folder,sensor_width,key_point_model,yolo_seg_model,sam_m
      
      for idx,row in df.iterrows():
           
-          image_path = row["image"]
+          image_path = row["image_path"]
+          
           if not os.path.exists(image_path):
                continue
           image = get_image(image_path)
@@ -236,34 +237,39 @@ def analyse_csv(df,base_folder,sensor_width,key_point_model,yolo_seg_model,sam_m
             # mask = get_roi(sam_mask_predictor,image,centers,mask_labels)
             total_whale_area = cv2.countNonZero(mask)
             pixels,percent_roi = remove_mask_quads(curve,image,mask,start,end)
-            save_img(row["image"],image,mask,centers,save_folder)
-
+            save_img(row["image_path"],image,mask,centers,save_folder)
+          df.loc[idx,"image_file_name"] = image_path.split('/')[-1] 
           df.loc[idx,"model_length_meters"] = length_meters
           df.loc[idx,"model_length_pixel"] = total_arc_length_pixels
-          df.loc[idx,'model_50_length_pixel'] = arc_length_pixels
+          df.loc[idx,'model_HT_length_pixel'] = arc_length_pixels
           df.loc[idx,"pixels_roi"] = pixels
           df.loc[idx,"centers"] = [centers_dict]
           df.loc[idx,'polygon_full'] = [polygon]
           df.loc[idx,'total_whale_area']=total_whale_area
           df.loc[idx,'altitude'] = altitude  
-          df.loc[idx,'bai'] = (pixels/((arc_length_pixels*percent_roi)**2))*100
+          df.loc[idx,'bai'] = (pixels/((total_arc_length_pixels*percent_roi)**2))*100
           
      return df
 
-def get_df(folder_path,focal_length,sensor_width,launch_height):
+def get_df(folder_path,focal_length,sensor_width,launch_height,start,end):
      df= pd.DataFrame()
-     df['image'] = glob(folder_path+'/*.png')
-     df["model_length_meters"] = 0
-     df["model_length_pixel"] = 0
-     df["pixels_roi"] = 0
-     df["bai"]=0
-     df['centers'] = None
-     df['polygon_full'] = None
-     df['total_whale_area']=None
+     df['image_file_name'] = None
+     df['image_path'] = glob(folder_path+'/*.png')
      df['sensor_width'] = sensor_width
      df['launch_height'] = launch_height
      df['focal_length'] =focal_length
      df['altitude'] = 50
+     df['Head-Tail-start'] = start
+     df['Head-Tail-end'] = end
+     df['model_HT_length_pixel'] = None
+     df["model_length_meters"] = 0
+     df["model_length_pixel"] = 0
+     df["pixels_roi"] = 0
+     df["bai"]=0
+     df['total_whale_area']=None
+     df['centers'] = None
+     df['polygon_full'] = None
+     
      return df
 
 def load_models(seg_model_wt_paths = 'yolov8l-seg-ko.pt',CHECKPOINT_PATH = 'sam_vit_h_4b8939.pth'):
@@ -303,7 +309,7 @@ def your_streamlit_app(lightning_app_state):
     st.text("Enter camera, launch height, and body condition information. Note, that image width (pixels) and barometric altitude (m) is automatically extracted from the input frame.")
     sensor_width =st.text_input('sensor_width (mm)','17.3')
     focal_length = st.text_input('focal_length (mm)','25')
-    launch_height = st.text_input('launch_height (mm)','1.7')
+    launch_height = st.text_input('launch_height (m)','1.7')
     st.text('Select the Head-Tail Range, the region of the body used to calculate body condition. For example, gray whales have a Head-Trail Range between widths 20-70 percent of total length, so start width = 0.20 and end width = 0.70.')
 
     start  = st.text_input("start width",'0.2')
@@ -312,10 +318,9 @@ def your_streamlit_app(lightning_app_state):
     sensor_width,focal_length,launch_height ,start,end= float(sensor_width),float(focal_length),float(launch_height),float(start),float(end)
 
     if st.button('start'):
-         df = get_df(frames_folders_path,focal_length,sensor_width,launch_height)
+         df = get_df(frames_folders_path,focal_length,sensor_width,launch_height,start,end)
          df = analyse_csv(df,frames_folders_path,sensor_width,keypoint_yolo,yolo_seg_model,sam_mask_predictor,results_folder_path,start,end)
          df.to_csv(os.path.join(results_folder_path,name),index = False)
-
          st.success('folder analysed')
         
 class SourceWork(app.LightningWork):

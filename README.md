@@ -73,28 +73,29 @@ In this application you need to manually add the path to the video and folder.
 ### launch XtraX
 
 
-To perform extraction on folder containing selected frames use "XtraX.py"
+* To perform extraction on folder containing selected frames use "XtraX.py".
+* Note : XtraX is designed to extraxt altitude information form teh anme of the file. It expects the file name to be in the same format as the DeteX saves them to be able to extact the altitude information.If altitude information is not contained within the file name, the default altitude is set to 50 m. Users can then use the output length and area measurements in pixels in the results.csv to manually convert to meters using the correct altitude
 
 ```
 lightning run app XtraX.py
 ```
 
 The results folder contains a csv "results.csv"
-The folloing is the discription of the columns that the csv contains
+The following is the discription of the columns that the csv contains
 
-'image'                : image path
-'model_length_meters'  : total length of whale in meters  
-'model_length_pixel'   : totla length in pixels
-'pixels_roi'           : Surface area of region of interest in pixel squared
-'bai'                  : BAI calculated using the prediction
-'centers'              : Python dictionary that contains the (x,y) pixel coordinates with keys representing the points on the whale
-'polygon_full'         : Polygon represent the binary mask of whole whale in COCO format 
-'total_whale_area'     : Total area of whale in pixels          
-'sensor_width'         : Sensor width of the camera used
-'launch_height'        : Launch height of the drone
-'focal_length'         : Focal length of the camera used       
-'altitude'             : Altitude of the drone in meters. (This is extracted from the name of the file. It also adds launch height to the value from name. If the name does not have altitude information then it defaults to 50 m)
-'model_50_length_pixel': 50% of total length of whale in pixels.
+* 'image'                : image path
+* 'model_length_meters'  : total length of whale in meters  
+* 'model_length_pixel'   : totla length in pixels
+* 'pixels_roi'           : Surface area of region of interest in pixel squared
+* 'bai'                  : BAI calculated using the prediction
+* 'centers'              : Python dictionary that contains the (x,y) pixel coordinates with keys representing the points on the whale
+* 'polygon_full'         : Polygon represent the binary mask of whole whale in COCO format 
+* 'total_whale_area'     : Total area of whale in pixels          
+* 'sensor_width'         : Sensor width of the camera used
+* 'launch_height'        : Launch height of the drone
+* 'focal_length'         : Focal length of the camera used       
+* 'altitude'             : Altitude of the drone in meters. (This is extracted from the name of the file. It also adds launch height to the value from name. If the name does not have altitude information then it defaults to 50 m)
+'model_HT_length_pixel': Length between Head-Tail range of whale in pixels.
 
 To run XtraX on just one image and have more control use "app_sam.py" as below
 ```
