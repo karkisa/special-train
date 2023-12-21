@@ -137,7 +137,7 @@ lightning run app app_sam.py
 ```
 
 
-##How to close the applications
+## How to close the applications
 If you are using a Mac, then just use "control+C" in the terminal for Windows "windows+C" in the terminal
 
 
